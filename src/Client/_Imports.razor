@@ -1,0 +1,61 @@
+﻿@*Libraries*@
+@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.AspNetCore.Components.WebAssembly.Http
+@using Microsoft.JSInterop
+@using Microsoft.AspNetCore.Identity;
+@using MudBlazor
+@using Blazored.LocalStorage;
+@using Blazored.FluentValidation
+
+@*Client Services*@
+@using Repres.Client.Infrastructure.Managers.Identity.Account
+@using Repres.Client.Infrastructure.Managers.Identity.Authentication
+@using Repres.Client.Infrastructure.Managers.Identity.Roles
+@using Repres.Client.Infrastructure.Managers.Identity.RoleClaims
+@using Repres.Client.Infrastructure.Managers.Identity.Users
+@using Repres.Client.Infrastructure.Managers.Preferences
+@using Repres.Client.Infrastructure.Managers.Interceptors
+@using Repres.Client.Infrastructure.Managers.Dashboard
+@using Repres.Client.Infrastructure.Managers.Communication
+@using Repres.Client.Infrastructure.Managers.Audit
+@using Repres.Client.Infrastructure.Managers.Misc.Document
+@using Repres.Client.Infrastructure.Managers.Misc.DocumentType
+
+@*Shared Libraries*@
+@using Repres.Shared.Constants.Permission
+@using Repres.Client.Shared.Components
+
+@using Repres.Client
+@using Repres.Client.Extensions;
+@using Repres.Client.Shared
+@using Repres.Client.Shared.Dialogs
+@using Repres.Client.Infrastructure.Settings
+
+@using Repres.Application.Requests.Identity
+
+@using Repres.Client.Pages.Authentication
+
+@using Repres.Client.Infrastructure.Authentication
+@using Repres.Client.Extensions
+
+@attribute [Authorize]
+@inject IAuthenticationManager _authenticationManager
+@inject IAccountManager _accountManager
+@inject NavigationManager _navigationManager
+@inject BlazorHeroStateProvider _stateProvider
+@inject IAuthorizationService _authorizationService
+@inject ISnackbar _snackBar
+@inject IDialogService _dialogService
+@inject HttpClient _httpClient
+@inject IHttpInterceptorManager _interceptor
+@inject ClientPreferenceManager _clientPreferenceManager
+@inject IUserManager _userManager
+@inject ILocalStorageService _localStorage;
+@inject IJSRuntime _jsRuntime;

@@ -1,0 +1,39 @@
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<EditApiModal> _localizer
+
+<EditForm Model="@EditApiModel" OnValidSubmit="SaveAsync">
+    <FluentValidationValidator @ref="_fluentValidationValidator" />
+    <MudDialog>
+        <TitleContent>
+            <MudText Typo="Typo.h6">
+                <MudIcon Icon="@Icons.Material.Filled.Update" Class="mr-3 mb-n1" />
+                @_localizer["Update Api"]
+            </MudText>
+        </TitleContent>
+        <DialogContent>
+            <MudGrid>
+                <MudItem xs="12" md="6">
+                    <MudTextField Disabled For="@(() => EditApiModel.Id)" @bind-Value="EditApiModel.Id" Label="@_localizer["Id"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField T="string" For="@(() => EditApiModel.Name)" @bind-Value="EditApiModel.Name" Label="@_localizer["Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => EditApiModel.DisplayName)" @bind-Value="EditApiModel.DisplayName" Label="@_localizer["Display Name"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => EditApiModel.ClientId)" @bind-Value="EditApiModel.ClientId" Label="@_localizer["Client ID"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => EditApiModel.Secret)" @bind-Value="EditApiModel.Secret" Label="@_localizer["Secret"]" />
+                </MudItem>
+                <MudItem xs="12" md="6">
+                    <MudTextField For="@(() => EditApiModel.Scopes)" @bind-Value="EditApiModel.Scopes" Label="@_localizer["Scopes"]" />
+                </MudItem>
+            </MudGrid>
+        </DialogContent>
+        <DialogActions>
+            <MudButton DisableElevation Variant="Variant.Filled" OnClick="Cancel">@_localizer["Cancel"]</MudButton>
+            <MudButton DisableElevation Variant="Variant.Filled" ButtonType="ButtonType.Submit" Disabled="@(!Validated)" Color="Color.Secondary">@_localizer["Update"]</MudButton>
+        </DialogActions>
+    </MudDialog>
+</EditForm>

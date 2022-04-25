@@ -1,0 +1,38 @@
+﻿@page "/third-party/api-access"
+@inject Microsoft.Extensions.Localization.IStringLocalizer<ApiAccess> _localizer
+
+<HeroTitle Title="@_localizer["API Access"]" Description="@Description" />
+@if (!_loaded)
+{
+    <MudProgressCircular Color="Color.Primary" Indeterminate="true" />
+}
+else
+{
+    <MudTabs Elevation="25" Rounded="true" Centered="true" ApplyEffectsToContainer="true" AlwaysShowScrollButtons="true">
+        @foreach (var api in _apiList)
+        {
+            <MudTabPanel Text="@api.DisplayName" BadgeData="string.Empty" BadgeColor="@GetBadgeColor(api.IsAuthenticated)" Style="padding-right: 43px;" Icon="@GetIcon(api.IsAuthenticated)">
+                <MudGrid>
+                    <MudItem xs="0" md="1" />
+                    <MudItem xs="12" md="11">
+                        <MudCheckBox Label="Authenticated" Size="Size.Large" ReadOnly="true" @bind-Checked="@api.IsAuthenticated"></MudCheckBox>
+                    </MudItem> 
+                    <MudItem xs="0" md="1" />
+                    <MudItem xs="12" md="11">
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Api" Color="Color.Success" Size="Size.Large" Link="@api.AuthUrl">
+                            @GetLinkText(api)
+                        </MudButton>
+                    </MudItem>
+                    <MudItem xs="0" md="1" />
+                    <MudItem xs="12" md="11">
+                        <MudSpacer />
+                    </MudItem>
+                </MudGrid>
+            </MudTabPanel>
+        }
+    </MudTabs>
+}
+
+@code {
+
+}

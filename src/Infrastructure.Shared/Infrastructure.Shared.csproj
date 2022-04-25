@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <RootNamespace>Repres.Infrastructure.Shared</RootNamespace>
+    <AssemblyName>Repres.Infrastructure.Shared</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Application\Application.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Google.Apis.Gmail.v1" Version="1.57.0.2650" />
+    <PackageReference Include="MailKit" Version="2.13.0" />
+    <PackageReference Include="MimeKit" Version="2.13.0" />
+  </ItemGroup>
+</Project>
