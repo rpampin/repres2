@@ -124,7 +124,8 @@ namespace Repres.Infrastructure.Services.Identity
         {
             var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-            var route = "api/identity/user/confirm-email/";
+            //var route = "api/identity/user/confirm-email/";
+            var route = "confirm-email/";
             var endpointUri = new Uri(string.Concat($"{origin}/", route));
             var verificationUri = QueryHelpers.AddQueryString(endpointUri.ToString(), "userId", user.Id);
             verificationUri = QueryHelpers.AddQueryString(verificationUri, "code", code);

@@ -20,6 +20,8 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Users
 
         Task<IResult> RegisterUserAsync(RegisterRequest request);
 
+        Task<IResult> ConfirmEmailAsync(string userId, string code);
+
         Task<IResult> ToggleUserStatusAsync(ToggleUserStatusRequest request);
 
         Task<IResult> UpdateRolesAsync(UpdateUserRolesRequest request);

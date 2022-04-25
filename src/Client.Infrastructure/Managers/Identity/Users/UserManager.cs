@@ -36,6 +36,12 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Users
             return await response.ToResult();
         }
 
+        public async Task<IResult> ConfirmEmailAsync(string userId, string code)
+        {
+            var response = await _httpClient.GetAsync(Routes.UserEndpoints.ConfirmEmail(userId, code));
+            return await response.ToResult();
+        }
+
         public async Task<IResult> ToggleUserStatusAsync(ToggleUserStatusRequest request)
         {
             var response = await _httpClient.PostAsJsonAsync(Routes.UserEndpoints.ToggleUserStatus, request);

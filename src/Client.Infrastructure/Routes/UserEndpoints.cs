@@ -14,6 +14,11 @@
             return $"api/identity/user/roles/{userId}";
         }
 
+        public static string ConfirmEmail(string userId, string code)
+        {
+            return $"api/identity/user/confirm-email/?userId={userId}&code={code}";
+        }
+
         public static string ExportFiltered(string searchString)
         {
             return $"{Export}?searchString={searchString}";
