@@ -177,7 +177,8 @@ namespace Repres.Server.Extensions
             IConfiguration configuration)
             => services
                 .AddDbContext<BlazorHeroContext>(options => options
-                    .UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
+                    .UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
+                    //.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
             .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
 
         internal static IServiceCollection AddCurrentUserService(this IServiceCollection services)

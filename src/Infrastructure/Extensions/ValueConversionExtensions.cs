@@ -26,7 +26,8 @@ namespace Repres.Infrastructure.Extensions
             propertyBuilder.HasConversion(converter);
             propertyBuilder.Metadata.SetValueConverter(converter);
             propertyBuilder.Metadata.SetValueComparer(comparer);
-            propertyBuilder.HasColumnType("nvarchar(max)");
+            propertyBuilder.HasColumnType("text");
+            //propertyBuilder.HasColumnType("nvarchar(max)");
 
             return propertyBuilder;
         }

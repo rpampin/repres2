@@ -15,7 +15,7 @@ namespace Repres.Server
         public async static Task Main(string[] args)
         {
             var host = CreateHostBuilder(args).Build();
-
+            
             using (var scope = host.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -24,7 +24,7 @@ namespace Repres.Server
                 {
                     var context = services.GetRequiredService<BlazorHeroContext>();
 
-                    if (context.Database.IsSqlServer())
+                    if (context.Database.IsSqlServer() || context.Database.IsNpgsql())
                     {
                         context.Database.Migrate();
                     }
@@ -49,6 +49,8 @@ namespace Repres.Server
                 {
                     webBuilder.UseStaticWebAssets();
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseUrls("http://0.0.0.0:" + Environment.GetEnvironmentVariable("PORT"));
                 });
+
     }
 }

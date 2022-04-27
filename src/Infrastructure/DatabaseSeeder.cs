@@ -89,8 +89,7 @@ namespace Repres.Infrastructure
                 {
                     FirstName = "Marc",
                     LastName = "Dressen",
-                    Email = "rodrigo.pampin@gmail.com",
-                    //Email = "admin@marcdressen.com",
+                    Email = "itsme@marcdressen.com",
                     UserName = "Marc",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
@@ -138,8 +137,7 @@ namespace Repres.Infrastructure
                 {
                     FirstName = "John",
                     LastName = "Doe",
-                    Email = "dueromc@gmail.com",
-                    //Email = "john@blazorhero.com",
+                    Email = "john@blazorhero.com",
                     UserName = "johndoe",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,

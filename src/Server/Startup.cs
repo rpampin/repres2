@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -55,8 +56,9 @@ namespace Repres.Server
             services.AddSharedInfrastructure(_configuration);
             services.RegisterSwagger();
             services.AddInfrastructureMappings();
-            services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
-            services.AddHangfireServer();
+            //services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfire(x => x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfireServer(opt => opt.WorkerCount = 2);
             services.AddControllers().AddValidators();
             services.AddExtendedAttributesValidators();
             services.AddExtendedAttributesHandlers();
@@ -74,7 +76,7 @@ namespace Repres.Server
         {
             app.UseCors();
             app.UseExceptionHandling(env);
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseMiddleware<ErrorHandlerMiddleware>();
             app.UseBlazorFrameworkFiles();
             app.UseStaticFiles();

@@ -64,7 +64,7 @@ namespace Repres.Client.Pages.Authentication
 
         private void FillAdministratorCredentials()
         {
-            _tokenModel.Email = "admin@marcdressen.com";
+            _tokenModel.Email = "itsme@marcdressen.com";
             _tokenModel.Password = "123Pa$$word!";
         }
 

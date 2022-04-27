@@ -142,7 +142,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
         public async Task ExecuteScheduledJob(string userId, DateTime? start, DateTime? end, CancellationToken cancellationToken)
         {
-            if (await _apiByUserRepository.IsUserAuthenticated(Name, userId))
+            var user = await _blazorHeroContext.Users.FindAsync(userId);
+            
+            if (user.IsActive && await _apiByUserRepository.IsUserAuthenticated(Name, userId))
             {
                 string token;
                 var apiByUser = await _apiByUserRepository.GetApiByUser(Name, userId);
