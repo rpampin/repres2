@@ -89,11 +89,13 @@ namespace Repres.Infrastructure
                 {
                     FirstName = "Marc",
                     LastName = "Dressen",
-                    Email = "itsme@marcdressen.com",
+                    Email = "rodrigo.pampin@gmail.com",
+                    //Email = "itsme@marcdressen.com",
                     UserName = "Marc",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
+                    TimeZoneId = "FLE Standard Time",
                     IsActive = true
                 };
                 var superUserInDb = await _userManager.FindByEmailAsync(superUser.Email);

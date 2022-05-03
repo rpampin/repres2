@@ -11,8 +11,8 @@ namespace Repres.Infrastructure.Models.Identity
     public class BlazorHeroUser : IdentityUser<string>, IChatUser, IAuditableEntity<string>
     {
         public string FirstName { get; set; }
-
         public string LastName { get; set; }
+        public string TimeZoneId { get; set; }
         public string CreatedBy { get; set; }
 
         [Column(TypeName = "text")]

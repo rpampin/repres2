@@ -54,7 +54,7 @@ namespace Repres.Infrastructure.Services.SheetApi
         {
             // CHECK IF THERE'S DATA TO BE EXPORTED
             var date = _dateTimeService.NowUtc;
-
+            
             var exportData = await _ouraRepository.GetDataToExport(userId);
 
             if (exportData.sleepSummary.Count > 0 || exportData.readinessSummary.Count > 0 || exportData.activitySummary.Count > 0)
@@ -85,7 +85,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     {
                         Properties = new SpreadsheetProperties()
                         {
-                            Title = $"{user.LastName} {user.FirstName} Sheet"
+                            Title = $"{user.FirstName}, {user.LastName}; Body Dashboard"
                         },
                         Sheets = null
                     });
@@ -360,15 +360,19 @@ namespace Repres.Infrastructure.Services.SheetApi
                 BatchUpdateValuesRequest batchUpdateValuesRequest = new BatchUpdateValuesRequest();
                 batchUpdateValuesRequest.Data = new List<ValueRange>();
 
+                // GET USER TIME ZONE
+                var userTimeZone = TimeZoneInfo.GetSystemTimeZones().Where(tz => tz.Id == user.TimeZoneId).Single();
+
                 ISet<string> updatedSheet = new HashSet<string>();
+                var sleepRangeSplit = _options.SleepRange.Split(':');
+                var sleepRange = (sleepRangeSplit[0], sleepRangeSplit[1]);
                 foreach (var sleep in exportData.sleepSummary)
                 {
-                    var sleepRange = _options.SleepRange.Split(':');
-                    var range = (sleepRange[0], sleepRange[1]);
-                    var row = sleep.summary_date.Day + 1;
+                    var currentDate = sleep.summary_date.ToUniversalTime().AddDays(1);
+                    var row = currentDate.Day + 1;
                     IList<object> list = new List<object>();
 
-                    list.Add(sleep.summary_date.ToString("yyyy-MM-dd")); //Date
+                    list.Add(currentDate.ToString("yyyy-MM-dd")); //Date
                     list.Add(sleep.score); //Sleep Score
                     list.Add(sleep.score_total); //Total Sleep Score
                     list.Add(sleep.score_rem); //REM Sleep Score
@@ -387,8 +391,11 @@ namespace Repres.Infrastructure.Services.SheetApi
                     list.Add(sleep.efficiency); //Sleep Efficiency
                     list.Add(sleep.onset_latency); //Sleep Latency
                     list.Add(null); //Sleep Timing // TODO: NOT IN API?
-                    list.Add(sleep.bedtime_start.ToString("yyyy-MM-dd HH:mm")); //Bedtime Start
-                    list.Add(sleep.bedtime_end.ToString("yyyy-MM-dd HH:mm")); //Bedtime End
+                    // CHANGE TIMEZONE OF BEDTIME START/END
+                    var bedtime_start = sleep.bedtime_start.ToUniversalTime().Add(userTimeZone.BaseUtcOffset);
+                    var bedtime_end = sleep.bedtime_end.ToUniversalTime().Add(userTimeZone.BaseUtcOffset);
+                    list.Add(bedtime_start.ToString("yyyy-MM-dd HH:mm")); //Bedtime Start
+                    list.Add(bedtime_end.ToString("yyyy-MM-dd HH:mm")); //Bedtime End
                     list.Add(sleep.hr_average); //Average Resting Heart Rate
                     list.Add(sleep.hr_lowest); //Lowest Resting Heart Rate
                     list.Add(sleep.rmssd); //Average HRV
@@ -398,8 +405,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = sleep.summary_date.ToString(_options.DateFormat).ToUpper();
-                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{range.Item1}{row}:{range.Item2}{row}", Values = data };
+                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{sleepRange.Item1}{row}:{sleepRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 
                     sleep.exported_date = date;
@@ -408,11 +415,12 @@ namespace Repres.Infrastructure.Services.SheetApi
                     updatedSheet.Add(sheetName);
                 }
 
+                var activityRangeSplit = _options.ActivityRange.Split(':');
+                var activityRange = (activityRangeSplit[0], activityRangeSplit[1]);
                 foreach (var activity in exportData.activitySummary)
                 {
-                    var activityRange = _options.ActivityRange.Split(':');
-                    var range = (activityRange[0], activityRange[1]);
-                    var row = activity.summary_date.Day + 1;
+                    var currentDate = activity.summary_date.ToUniversalTime().AddDays(1);
+                    var row = currentDate.Day + 1;
                     IList<object> list = new List<object>();
 
                     list.Add(activity.score); //Activity Score
@@ -436,8 +444,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = activity.summary_date.ToString(_options.DateFormat).ToUpper();
-                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{range.Item1}{row}:{range.Item2}{row}", Values = data };
+                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{activityRange.Item1}{row}:{activityRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 
                     activity.exported_date = date;
@@ -446,11 +454,12 @@ namespace Repres.Infrastructure.Services.SheetApi
                     updatedSheet.Add(sheetName);
                 }
 
+                var readinessRangeSplit = _options.ReadinessRange.Split(':');
+                var readinessRange = (readinessRangeSplit[0], readinessRangeSplit[1]);
                 foreach (var readiness in exportData.readinessSummary)
                 {
-                    var readinessRange = _options.ReadinessRange.Split(':');
-                    var range = (readinessRange[0], readinessRange[1]);
-                    var row = readiness.summary_date.Day + 1;
+                    var currentDate = readiness.summary_date.ToUniversalTime().AddDays(1);
+                    var row = currentDate.Day + 1;
                     IList<object> list = new List<object>();
 
                     list.Add(readiness.score); //Readiness Score
@@ -465,8 +474,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = readiness.summary_date.ToString(_options.DateFormat).ToUpper();
-                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{range.Item1}{row}:{range.Item2}{row}", Values = data };
+                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{readinessRange.Item1}{row}:{readinessRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 
                     readiness.exported_date = date;
@@ -559,7 +568,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 values.Add($"=IF('{dataSheetName}'!M{dataRow}/86400;'{dataSheetName}'!M{dataRow}/86400;\"\")");
                 values.Add($"=IF('{dataSheetName}'!O{dataRow}/86400;'{dataSheetName}'!O{dataRow}/86400;\"\")");
                 values.Add($"='{dataSheetName}'!B{dataRow}");
-                values.Add($"='{dataSheetName}'!V{dataRow}/100");
+                values.Add($"='{dataSheetName}'!V{dataRow}");
                 values.Add($"='{dataSheetName}'!W{dataRow}/10");
                 values.Add($"='{dataSheetName}'!X{dataRow}");
                 values.Add($"=IF('{dataSheetName}'!AY{dataRow}/100;'{dataSheetName}'!AY{dataRow}/100;\"\")");
@@ -567,9 +576,9 @@ namespace Repres.Infrastructure.Services.SheetApi
                 values.Add($"='{dataSheetName}'!AT{dataRow}");
                 values.Add($"='{dataSheetName}'!AI{dataRow}");
                 values.Add($"='{dataSheetName}'!AH{dataRow}");
-                values.Add($"=IF('{dataSheetName}'!AN{dataRow}/86400,'{dataSheetName}'!AN{dataRow}/86400,\"\")");
-                values.Add($"=IF('{dataSheetName}'!AO{dataRow}/86400,'{dataSheetName}'!AO{dataRow}/86400,\"\")");
-                values.Add($"=IF('{dataSheetName}'!AP{dataRow}/86400,'{dataSheetName}'!AP{dataRow}/86400,\"\")");
+                values.Add($"=IF('{dataSheetName}'!AN{dataRow}/1440,'{dataSheetName}'!AN{dataRow}/1440,\"\")");
+                values.Add($"=IF('{dataSheetName}'!AO{dataRow}/1440,'{dataSheetName}'!AO{dataRow}/1440,\"\")");
+                values.Add($"=IF('{dataSheetName}'!AP{dataRow}/1440,'{dataSheetName}'!AP{dataRow}/1440,\"\")");
                 values.Add($"='{dataSheetName}'!AR{dataRow}");
                 values.Add($"='{dataSheetName}'!AJ{dataRow}");
                 values.Add($"=IF('{dataSheetName}'!AK{dataRow}/1000,'{dataSheetName}'!AK{dataRow}/1000,\"\")");
