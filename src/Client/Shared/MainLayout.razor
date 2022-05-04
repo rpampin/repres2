@@ -26,8 +26,10 @@
         @(LoadDataAsync())
         <MudLayout>
             <MudAppBar Elevation="25">
-                <MudIcon Icon="@CustomIcons.BlazorHero" Size="Size.Large" ViewBox="0 89 1000 962" />
-                <MudText Typo="Typo.h6" Class="ml-4">Blazor</MudText>
+                @*<MudIcon Icon="@CustomIcons.BlazorHero" Size="Size.Large" ViewBox="0 89 1000 962" />*@
+                <MudIcon Icon="@CustomIcons.BlazorHeroFull" Size="Size.Large" ViewBox="325 0 1 105" Style="width: 225px;"/>
+                @*<MudText Typo="Typo.h6" Class="ml-4">Blazor</MudText>*@
+                @*<MudElement HtmlTag="img" Style="max-height: 36px;" src="./media/logo.png"></MudElement>*@
                 <MudToolBar DisableGutters="true">
                     <MudIconButton Icon="@Icons.Material.Outlined.Menu" Color="Color.Inherit" OnClick="@((e) => DrawerToggle())" Class="ml-3" />
                 </MudToolBar>
