@@ -141,6 +141,9 @@
   <data name="Sign Up" xml:space="preserve">
     <value>Sign Up</value>
   </data>
+  <data name="Time Zone" xml:space="preserve">
+    <value>Time Zone</value>
+  </data>
   <data name="Username" xml:space="preserve">
     <value>Username</value>
   </data>

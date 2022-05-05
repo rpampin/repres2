@@ -8,15 +8,22 @@ using System.IO;
 using System.Threading.Tasks;
 using Blazored.FluentValidation;
 using Repres.Shared.Constants.Storage;
+using Repres.Client.Infrastructure.Managers.TimeZone;
+using System.Linq;
+using System.Collections.Generic;
+using Repres.Application.Features.TimeZones.Queries.GetAll;
 
 namespace Repres.Client.Pages.Identity
 {
     public partial class Profile
     {
+        [Inject] private ITimeZoneManager TimeZoneManager { get; set; }
+
         private FluentValidationValidator _fluentValidationValidator;
         private bool Validated => _fluentValidationValidator.Validate(options => { options.IncludeAllRuleSets(); });
         private char _firstLetterOfName;
         private readonly UpdateProfileRequest _profileModel = new();
+        private List<GetAllTimeZonesResponse> _timeZones = new();
 
         public string UserId { get; set; }
 
@@ -40,6 +47,10 @@ namespace Repres.Client.Pages.Identity
 
         protected override async Task OnInitializedAsync()
         {
+            var timeZoneResponse = await TimeZoneManager.GetAllAsync();
+            if (timeZoneResponse.Succeeded)
+                _timeZones = timeZoneResponse.Data.ToList();
+
             await LoadDataAsync();
         }
 
@@ -60,6 +71,12 @@ namespace Repres.Client.Pages.Identity
             if (_profileModel.FirstName.Length > 0)
             {
                 _firstLetterOfName = _profileModel.FirstName[0];
+            }
+
+            var timeZone = await _accountManager.GetProfileTimeZoneAsync(UserId);
+            if (data.Succeeded)
+            {
+                _profileModel.TimeZoneId = timeZone.Data;
             }
         }
 

@@ -1,15 +1,31 @@
-﻿using Repres.Application.Requests.Identity;
+﻿using Blazored.FluentValidation;
+using Microsoft.AspNetCore.Components;
 using MudBlazor;
+using Repres.Application.Features.TimeZones.Queries.GetAll;
+using Repres.Application.Requests.Identity;
+using Repres.Client.Infrastructure.Managers.TimeZone;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using Blazored.FluentValidation;
 
 namespace Repres.Client.Pages.Authentication
 {
     public partial class Register
     {
+        [Inject] private ITimeZoneManager TimeZoneManager { get; set; }
+
         private FluentValidationValidator _fluentValidationValidator;
         private bool Validated => _fluentValidationValidator.Validate(options => { options.IncludeAllRuleSets(); });
         private RegisterRequest _registerUserModel = new();
+
+        private List<GetAllTimeZonesResponse> _timeZones = new();
+
+        protected override async Task OnInitializedAsync()
+        {
+            var timeZoneResponse = await TimeZoneManager.GetAllAsync();
+            if (timeZoneResponse.Succeeded)
+                _timeZones = timeZoneResponse.Data.ToList();
+        }
 
         private async Task SubmitAsync()
         {

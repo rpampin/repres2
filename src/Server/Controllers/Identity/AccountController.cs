@@ -58,6 +58,18 @@ namespace Repres.Server.Controllers.Identity
         }
 
         /// <summary>
+        /// Get Profile time zone by Id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>Status 200 OK </returns>
+        [HttpGet("time-zone/{userId}")]
+        //[ResponseCache(NoStore = false, Location = ResponseCacheLocation.Client, Duration = 60)]
+        public async Task<IActionResult> GetProfileTimeZoneAsync(string userId)
+        {
+            return Ok(await _accountService.GetProfileTimeZoneAsync(userId));
+        }
+
+        /// <summary>
         /// Update Profile Picture
         /// </summary>
         /// <param name="request"></param>

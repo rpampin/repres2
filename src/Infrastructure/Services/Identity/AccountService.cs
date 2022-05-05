@@ -68,6 +68,7 @@ namespace Repres.Infrastructure.Services.Identity
                 user.FirstName = request.FirstName;
                 user.LastName = request.LastName;
                 user.PhoneNumber = request.PhoneNumber;
+                user.TimeZoneId = request.TimeZoneId;
                 var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
                 if (request.PhoneNumber != phoneNumber)
                 {
@@ -92,6 +93,16 @@ namespace Repres.Infrastructure.Services.Identity
                 return await Result<string>.FailAsync(_localizer["User Not Found"]);
             }
             return await Result<string>.SuccessAsync(data: user.ProfilePictureDataUrl);
+        }
+
+        public async Task<IResult<string>> GetProfileTimeZoneAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return await Result<string>.FailAsync(_localizer["User Not Found"]);
+            }
+            return await Result<string>.SuccessAsync(data: user.TimeZoneId);
         }
 
         public async Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId)

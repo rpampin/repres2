@@ -13,6 +13,8 @@ namespace Repres.Application.Interfaces.Services.Account
 
         Task<IResult<string>> GetProfilePictureAsync(string userId);
 
+        Task<IResult<string>> GetProfileTimeZoneAsync(string userId);
+
         Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId);
     }
 }

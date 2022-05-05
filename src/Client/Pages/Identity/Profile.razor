@@ -30,10 +30,10 @@
                 @if (!string.IsNullOrEmpty(@ImageDataUrl))
                 {
                     <MudButton Variant="Variant.Text"
-                               Color="Color.Error"
-                               StartIcon="@Icons.Filled.Delete"
-                               Size="Size.Small"
-                               OnClick="DeleteAsync">
+                           Color="Color.Error"
+                           StartIcon="@Icons.Filled.Delete"
+                           Size="Size.Small"
+                           OnClick="DeleteAsync">
                         @_localizer["Delete Image"]
                     </MudButton>
                 }
@@ -62,6 +62,14 @@
                         </MudItem>
                         <MudItem xs="12" md="6">
                             <MudTextField @bind-Value="@_profileModel.Email" Label="@_localizer["Email"]" For="@(() => _profileModel.Email)" Variant="Variant.Outlined" InputType="InputType.Email" Disabled=true />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudSelect T="string" Label="@_localizer["Time Zone"]" @bind-Value="_profileModel.TimeZoneId" For="@(() => _profileModel.TimeZoneId)">
+                                @foreach (var timeZone in _timeZones)
+                                {
+                                    <MudSelectItem T="string" Value="@timeZone.Id">@timeZone.DisplayName</MudSelectItem>
+                                }
+                            </MudSelect>
                         </MudItem>
                     </MudGrid>
                 </MudCardContent>

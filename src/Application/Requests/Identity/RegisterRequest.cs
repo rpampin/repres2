@@ -11,6 +11,9 @@ namespace Repres.Application.Requests.Identity
         public string LastName { get; set; }
 
         [Required]
+        public string TimeZoneId { get; set; }
+
+        [Required]
         [EmailAddress]
         public string Email { get; set; }
 

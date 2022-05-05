@@ -50,6 +50,13 @@
             <param name="userId"></param>
             <returns>Status 200 OK </returns>
         </member>
+        <member name="M:Repres.Server.Controllers.Identity.AccountController.GetProfileTimeZoneAsync(System.String)">
+            <summary>
+            Get Profile time zone by Id
+            </summary>
+            <param name="userId"></param>
+            <returns>Status 200 OK </returns>
+        </member>
         <member name="M:Repres.Server.Controllers.Identity.AccountController.UpdateProfilePictureAsync(Repres.Application.Requests.Identity.UpdateProfilePictureRequest)">
             <summary>
             Update Profile Picture
@@ -336,6 +343,12 @@
             Change Language Preference
             </summary>
             <param name="languageCode"></param>
+            <returns>Status 200 OK</returns>
+        </member>
+        <member name="M:Repres.Server.Controllers.Utilities.TimeZoneController.GetAll">
+            <summary>
+            Get All Time Zones
+            </summary>
             <returns>Status 200 OK</returns>
         </member>
         <member name="M:Repres.Server.Controllers.v1.DashboardController.GetDataAsync">
