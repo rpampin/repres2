@@ -85,7 +85,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     {
                         Properties = new SpreadsheetProperties()
                         {
-                            Title = $"{user.FirstName}, {user.LastName}; Body Dashboard"
+                            Title = $"{user.FirstName} {user.LastName}; Body Dashboard"
                         },
                         Sheets = null
                     });
@@ -569,7 +569,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 values.Add($"=IF('{dataSheetName}'!O{dataRow}/86400;'{dataSheetName}'!O{dataRow}/86400;\"\")");
                 values.Add($"='{dataSheetName}'!B{dataRow}");
                 values.Add($"='{dataSheetName}'!V{dataRow}");
-                values.Add($"='{dataSheetName}'!W{dataRow}/10");
+                values.Add($"=IF('{dataSheetName}'!W{dataRow};'{dataSheetName}'!W{dataRow};\"\")");
                 values.Add($"='{dataSheetName}'!X{dataRow}");
                 values.Add($"=IF('{dataSheetName}'!AY{dataRow}/100;'{dataSheetName}'!AY{dataRow}/100;\"\")");
                 values.Add($"='{dataSheetName}'!AA{dataRow}");
@@ -582,7 +582,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 values.Add($"='{dataSheetName}'!AR{dataRow}");
                 values.Add($"='{dataSheetName}'!AJ{dataRow}");
                 values.Add($"=IF('{dataSheetName}'!AK{dataRow}/1000,'{dataSheetName}'!AK{dataRow}/1000,\"\")");
-                values.Add($"='{dataSheetName}'!AQ{dataRow}/1440");
+                values.Add($"=IF('{dataSheetName}'!AQ{dataRow},'{dataSheetName}'!AQ{dataRow}/1440,\"\")");
                 values.Add($"='{dataSheetName}'!AB{dataRow}");
 
                 data.Add(values);

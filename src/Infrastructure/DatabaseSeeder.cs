@@ -89,8 +89,8 @@ namespace Repres.Infrastructure
                 {
                     FirstName = "Marc",
                     LastName = "Dressen",
-                    Email = "rodrigo.pampin@gmail.com",
-                    //Email = "itsme@marcdressen.com",
+                    //Email = "rodrigo.pampin@gmail.com",
+                    Email = "itsme@marcdressen.com",
                     UserName = "Marc",
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
