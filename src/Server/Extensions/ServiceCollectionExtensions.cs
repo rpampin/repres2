@@ -10,6 +10,7 @@ using Microsoft.Extensions.Localization;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Infrastructure;
 using Repres.Application.Configurations;
 using Repres.Application.Interfaces.Serialization.Options;
 using Repres.Application.Interfaces.Serialization.Serializers;
@@ -44,6 +45,7 @@ using System.Net;
 using System.Reflection;
 using System.Security.Claims;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Repres.Server.Extensions
@@ -177,9 +179,24 @@ namespace Repres.Server.Extensions
             IConfiguration configuration)
             => services
                 .AddDbContext<BlazorHeroContext>(options => options
-                    .UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
-                    //.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
-            .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
+                .UseNpgsql(GetConnectionString(Environment.GetEnvironmentVariable("DATABASE_URL"))))
+                //.UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
+                //.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
+                .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
+
+        private static string GetConnectionString(string databaseUrl)
+        {
+            string pattern = @"postgres://([a-zA-Z0-9]*):([a-zA-Z0-9]*)@([a-zA-Z0-9-.]*):(\d*)/([a-zA-Z0-9-.]*)";
+            var match = Regex.Match(databaseUrl, pattern);
+            var connectionString = string.Format(
+                "User ID={0};Password={1};Host={2};Port={3};Database={4};SSL Mode=Require;Trust Server Certificate=true;",
+                match.Groups[1].Value,
+                match.Groups[2].Value,
+                match.Groups[3].Value,
+                match.Groups[4].Value,
+                match.Groups[5].Value);
+            return connectionString;
+        }
 
         internal static IServiceCollection AddCurrentUserService(this IServiceCollection services)
         {

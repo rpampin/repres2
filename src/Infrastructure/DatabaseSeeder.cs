@@ -46,7 +46,9 @@ namespace Repres.Infrastructure
         public void Initialize()
         {
             AddAdministrator();
+#if DEBUG
             AddBasicUser();
+#endif
             AddThirdPartyApis();
             _db.SaveChanges();
         }
