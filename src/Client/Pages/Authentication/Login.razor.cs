@@ -62,16 +62,16 @@ namespace Repres.Client.Pages.Authentication
             }
         }
 
-        private void FillAdministratorCredentials()
-        {
-            _tokenModel.Email = "itsme@marcdressen.com";
-            _tokenModel.Password = "123Pa$$word!";
-        }
+        //private void FillAdministratorCredentials()
+        //{
+        //    _tokenModel.Email = "itsme@marcdressen.com";
+        //    _tokenModel.Password = "123Pa$$word!";
+        //}
 
-        private void FillBasicUserCredentials()
-        {
-            _tokenModel.Email = "john@blazorhero.com";
-            _tokenModel.Password = "123Pa$$word!";
-        }
+        //private void FillBasicUserCredentials()
+        //{
+        //    _tokenModel.Email = "john@blazorhero.com";
+        //    _tokenModel.Password = "123Pa$$word!";
+        //}
     }
 }
