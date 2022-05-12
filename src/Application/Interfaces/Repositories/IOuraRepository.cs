@@ -14,5 +14,6 @@ namespace Repres.Application.Interfaces.Repositories
         Task<bool> ReadinessSummaryExists(string userId, DateTime summaryDate);
         Task<bool> ActivitySummaryExists(string userId, DateTime summaryDate);
         Task<(List<Sleep> sleepSummary, List<Readiness> readinessSummary, List<Activity> activitySummary)> GetDataToExport(string userId);
+        Task<(List<Sleep> sleepSummary, List<Readiness> readinessSummary, List<Activity> activitySummary)> GetDataToRemove(string userId);
     }
 }

@@ -260,6 +260,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     }
                 }
 
+                // REMOVE OLD DATA TO KEEP DATABASE MINIMAL
+                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
+                _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
+                _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
+                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity;
+
                 await _unitOfWork.Commit(cancellationToken);
 
 #if DEBUG

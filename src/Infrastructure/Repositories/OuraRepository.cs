@@ -53,5 +53,16 @@ namespace Repres.Infrastructure.Repositories
 
             return rv;
         }
+
+        public async Task<(List<Sleep> sleepSummary, List<Readiness> readinessSummary, List<Activity> activitySummary)> GetDataToRemove(string userId)
+        {
+            var rv = (new List<Sleep>(), new List<Readiness>(), new List<Activity>());
+
+            rv.Item1 = await _sleepRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync();
+            rv.Item2 = await _readinessRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync();
+            rv.Item3 = await _activityRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync();
+
+            return rv;
+        }
     }
 }
