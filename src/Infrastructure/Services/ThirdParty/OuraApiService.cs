@@ -47,7 +47,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                               IDateTimeService dateTimeService,
                               IOptionsSnapshot<OuraAuthOptions> options,
                               ISheetApi sheetApi,
-                              IMailService mailService, 
+                              IMailService mailService,
                               BlazorHeroContext blazorHeroContext)
         {
             _mapper = mapper;
@@ -143,7 +143,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
         public async Task ExecuteScheduledJob(string userId, DateTime? start, DateTime? end, CancellationToken cancellationToken)
         {
             var user = await _blazorHeroContext.Users.FindAsync(userId);
-            
+
             if (user.IsActive && await _apiByUserRepository.IsUserAuthenticated(Name, userId))
             {
                 string token;
@@ -176,6 +176,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
                 var lastReadinessSummaryDate = await _ouraRepository.GetLastReadinessSummaryDate(userId);
                 var lastActivitypSummaryDate = await _ouraRepository.GetLastActivitySummaryDate(userId);
 
+                // REMOVE OLD DATA TO KEEP DATABASE MINIMAL
+                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
+
                 string endPrm = end.HasValue ? end.Value.ToString("yyyy-MM-dd") : _dateTimeService.NowUtc.ToString("yyyy-MM-dd");
 
                 var initialDate = new DateTime(1970, 1, 1);
@@ -201,6 +204,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var sleepData = await response.ToResult<OuraSummaryResponse>();
                     sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
+                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
+                    if (sleepSummary.Count > 0)
+                        _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
 
                     // READINESS
                     uri = _options.ApiBaseAddress + _options.ReadinessSummaries;
@@ -217,6 +223,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var readinessData = await response.ToResult<OuraSummaryResponse>();
                     readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
+                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
+                    if (readinessSummary.Count > 0)
+                        _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
 
                     // ACTIVITY
                     uri = _options.ApiBaseAddress + _options.ActivitySummaries;
@@ -233,6 +242,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var activityData = await response.ToResult<OuraSummaryResponse>();
                     activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
+                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
+                    if (activitySummary.Count > 0)
+                        _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
                 }
 
                 foreach (var sleep in sleepSummary)
@@ -259,12 +271,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
                         await _unitOfWork.Repository<Activity>().AddAsync(activity);
                     }
                 }
-
-                // REMOVE OLD DATA TO KEEP DATABASE MINIMAL
-                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
-                _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
-                _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
-                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
 
                 await _unitOfWork.Commit(cancellationToken);
 

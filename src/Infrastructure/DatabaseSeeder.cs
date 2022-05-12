@@ -46,7 +46,7 @@ namespace Repres.Infrastructure
         public void Initialize()
         {
             AddAdministrator();
-            //AddBasicUser();
+            AddBasicUser();
             AddThirdPartyApis();
             _db.SaveChanges();
         }
@@ -135,24 +135,24 @@ namespace Repres.Infrastructure
                     _logger.LogInformation(_localizer["Seeded Basic Role."]);
                 }
                 //Check if User Exists
-                var basicUser = new BlazorHeroUser
-                {
-                    FirstName = "John",
-                    LastName = "Doe",
-                    Email = "john@blazorhero.com",
-                    UserName = "johndoe",
-                    EmailConfirmed = true,
-                    PhoneNumberConfirmed = true,
-                    CreatedOn = DateTime.Now,
-                    IsActive = true
-                };
-                var basicUserInDb = await _userManager.FindByEmailAsync(basicUser.Email);
-                if (basicUserInDb == null)
-                {
-                    await _userManager.CreateAsync(basicUser, UserConstants.DefaultPassword);
-                    await _userManager.AddToRoleAsync(basicUser, RoleConstants.BasicRole);
-                    _logger.LogInformation(_localizer["Seeded User with Basic Role."]);
-                }
+                //var basicUser = new BlazorHeroUser
+                //{
+                //    FirstName = "John",
+                //    LastName = "Doe",
+                //    Email = "john@blazorhero.com",
+                //    UserName = "johndoe",
+                //    EmailConfirmed = true,
+                //    PhoneNumberConfirmed = true,
+                //    CreatedOn = DateTime.Now,
+                //    IsActive = true
+                //};
+                //var basicUserInDb = await _userManager.FindByEmailAsync(basicUser.Email);
+                //if (basicUserInDb == null)
+                //{
+                //    await _userManager.CreateAsync(basicUser, UserConstants.DefaultPassword);
+                //    await _userManager.AddToRoleAsync(basicUser, RoleConstants.BasicRole);
+                //    _logger.LogInformation(_localizer["Seeded User with Basic Role."]);
+                //}
             }).GetAwaiter().GetResult();
         }
     }
