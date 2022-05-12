@@ -264,7 +264,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                 var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
                 _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
                 _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
-                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity;
+                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
 
                 await _unitOfWork.Commit(cancellationToken);
 
