@@ -22,7 +22,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "BASE_ADDRESS": "https://localhost:5001/",
-        "DATABASE_URL": "postgres://jinkkaeljazcya:4879931598c3b8da4260359797702b6d7a59ab803e313be0f854a0782d46dada@ec2-34-247-72-29.eu-west-1.compute.amazonaws.com:5432/de7mf2mjbc0a6b"
+        "DATABASE_URL": "postgres://postgres:postgres@localhost:5432/oura_test"
       },
       "dotnetRunMessages": "true",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",

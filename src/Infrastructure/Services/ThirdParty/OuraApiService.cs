@@ -178,8 +178,10 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                 // REMOVE OLD DATA TO KEEP DATABASE MINIMAL
                 var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
-
+                
                 string endPrm = end.HasValue ? end.Value.ToString("yyyy-MM-dd") : _dateTimeService.NowUtc.ToString("yyyy-MM-dd");
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                //endPrm = new DateTime(2022, 5, 25).ToString("yyyy-MM-dd");
 
                 var initialDate = new DateTime(1970, 1, 1);
                 var sleepSummary = new List<Sleep>();

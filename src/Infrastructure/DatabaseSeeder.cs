@@ -1,20 +1,18 @@
-﻿using Repres.Application.Interfaces.Services;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using Repres.Application.Interfaces.Repositories;
+using Repres.Application.Interfaces.Services;
+using Repres.Application.Interfaces.Services.ThirdParty;
 using Repres.Infrastructure.Contexts;
 using Repres.Infrastructure.Helpers;
 using Repres.Infrastructure.Models.Identity;
 using Repres.Shared.Constants.Permission;
 using Repres.Shared.Constants.Role;
 using Repres.Shared.Constants.User;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using Repres.Application.Interfaces.Services.ThirdParty;
-using Repres.Application.Interfaces.Repositories;
-using System.Text.RegularExpressions;
 
 namespace Repres.Infrastructure
 {
@@ -85,11 +83,24 @@ namespace Repres.Infrastructure
                     _logger.LogInformation(_localizer["Seeded Administrator Role."]);
                 }
                 //Check if User Exists
+#if DEBUG
+                var superUser = new BlazorHeroUser
+                {
+                    FirstName = "Rodrigo",
+                    LastName = "Pampin",
+                    Email = "mappin.bsnss@gmail.com",
+                    UserName = "rpampin",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    CreatedOn = DateTime.Now,
+                    TimeZoneId = "FLE Standard Time",
+                    IsActive = true
+                };
+#else
                 var superUser = new BlazorHeroUser
                 {
                     FirstName = "Marc",
                     LastName = "Dressen",
-                    //Email = "rodrigo.pampin@gmail.com",
                     Email = "itsme@marcdressen.com",
                     UserName = "Marc",
                     EmailConfirmed = true,
@@ -98,6 +109,7 @@ namespace Repres.Infrastructure
                     TimeZoneId = "FLE Standard Time",
                     IsActive = true
                 };
+#endif
                 var superUserInDb = await _userManager.FindByEmailAsync(superUser.Email);
                 if (superUserInDb == null)
                 {
@@ -134,25 +146,27 @@ namespace Repres.Infrastructure
                     await _roleManager.CreateAsync(basicRole);
                     _logger.LogInformation(_localizer["Seeded Basic Role."]);
                 }
+#if DEBUG
                 //Check if User Exists
-                //var basicUser = new BlazorHeroUser
-                //{
-                //    FirstName = "John",
-                //    LastName = "Doe",
-                //    Email = "john@blazorhero.com",
-                //    UserName = "johndoe",
-                //    EmailConfirmed = true,
-                //    PhoneNumberConfirmed = true,
-                //    CreatedOn = DateTime.Now,
-                //    IsActive = true
-                //};
-                //var basicUserInDb = await _userManager.FindByEmailAsync(basicUser.Email);
-                //if (basicUserInDb == null)
-                //{
-                //    await _userManager.CreateAsync(basicUser, UserConstants.DefaultPassword);
-                //    await _userManager.AddToRoleAsync(basicUser, RoleConstants.BasicRole);
-                //    _logger.LogInformation(_localizer["Seeded User with Basic Role."]);
-                //}
+                var basicUser = new BlazorHeroUser
+                {
+                    FirstName = "Duero",
+                    LastName = "Mcfile",
+                    Email = "dueromc@gmail.com",
+                    UserName = "dueromc",
+                    EmailConfirmed = true,
+                    PhoneNumberConfirmed = true,
+                    CreatedOn = DateTime.Now,
+                    IsActive = true
+                };
+                var basicUserInDb = await _userManager.FindByEmailAsync(basicUser.Email);
+                if (basicUserInDb == null)
+                {
+                    await _userManager.CreateAsync(basicUser, UserConstants.DefaultPassword);
+                    await _userManager.AddToRoleAsync(basicUser, RoleConstants.BasicRole);
+                    _logger.LogInformation(_localizer["Seeded User with Basic Role."]);
+                }
+#endif
             }).GetAwaiter().GetResult();
         }
     }

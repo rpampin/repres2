@@ -64,7 +64,7 @@ namespace Repres.Infrastructure.Services.SheetApi
 
 #if DEBUG
                 // ONLY FOR DEV PURPOSE
-                var delete = true;
+                var delete = false;
                 if (delete && !string.IsNullOrWhiteSpace(user.OuraSheetId))
                 {
                     _googleDrive.Files.Delete(user.OuraSheetId).Execute();
@@ -207,7 +207,7 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                 // ADD MONTHLY SHEET
                 var newMonthsToExport = exportData.sleepSummary
-                    .OrderByDescending(s => s.summary_date)
+                    //.OrderByDescending(s => s.summary_date)
                     .Select(s => s.summary_date.ToString(_options.DateFormat).ToUpper())
                     .Where(t => !spreadSheet.Sheets.Any(s => s.Properties.Title == t))
                     .Distinct()
@@ -249,9 +249,10 @@ namespace Repres.Infrastructure.Services.SheetApi
                                 {
                                     Title = $"DATA {month}",
                                     SheetId = dataSheetId,
-                                    Hidden = true
+                                    Hidden = true,
+                                    Index = 1
                                 },
-                                Fields = "Title,Hidden"
+                                Fields = "Title,Hidden,Index"
                             }
                         });
 
@@ -280,9 +281,10 @@ namespace Repres.Infrastructure.Services.SheetApi
                                 Properties = new SheetProperties()
                                 {
                                     Title = month,
-                                    SheetId = monthSheetId
+                                    SheetId = monthSheetId,
+                                    Index = 0
                                 },
-                                Fields = "Title"
+                                Fields = "Title,Index"
                             }
                         });
 
@@ -314,7 +316,8 @@ namespace Repres.Infrastructure.Services.SheetApi
                     }
 
                     // IF SHEET1 IS NOT HIDDEN, HIDE IT AFTER CREATING OTHER SHEETS
-                    if (spreadSheet.Sheets.First().Properties.Hidden != true)
+                    var sheet1 = spreadSheet.Sheets.Where(s => s.Properties.Title == "Sheet1").SingleOrDefault();
+                    if (sheet1 != null && sheet1.Properties.Hidden != true)
                     {
                         BatchUpdateSpreadsheetRequest batchUpdateTemplateSheetName = new BatchUpdateSpreadsheetRequest();
                         batchUpdateTemplateSheetName.Requests = new List<Request>();
@@ -325,7 +328,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                             {
                                 Properties = new SheetProperties()
                                 {
-                                    SheetId = spreadSheet.Sheets.First().Properties.SheetId,
+                                    SheetId = sheet1.Properties.SheetId,
                                     Hidden = true
                                 },
                                 Fields = "Hidden"
@@ -340,7 +343,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                                 {
                                     Range = new GridRange
                                     {
-                                        SheetId = spreadSheet.Sheets.First().Properties.SheetId
+                                        SheetId = sheet1.Properties.SheetId
                                     },
                                     Editors = new Editors
                                     {
@@ -536,9 +539,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                         await _googleSpreadSheet.BatchUpdate(batchUpdateTemplateSheetName, spreadSheet.SpreadsheetId).ExecuteAsync();
                 }
 
-#if !DEBUG
                 await _unitOfWork.Commit(CancellationToken.None);
-#endif
             }
         }
 
