@@ -15,6 +15,7 @@ using Repres.Infrastructure.Services.SheetApi.Options;
 using Repres.Shared.Constants.Role;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading;
@@ -24,6 +25,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 {
     public class SheetApi : ISheetApi
     {
+        private readonly CultureInfo deDeCulture = new CultureInfo("de-DE");
+
         private readonly IUnitOfWork<int> _unitOfWork;
         private readonly IOuraRepository _ouraRepository;
         private readonly IDateTimeService _dateTimeService;
@@ -49,6 +52,9 @@ namespace Repres.Infrastructure.Services.SheetApi
             _unitOfWork = unitOfWork;
             _dateTimeService = dateTimeService;
         }
+
+        string GetDateNameString(DateTime date)
+            => date.ToString(_options.DateFormat, deDeCulture).ToUpper();
 
         public async Task ExportData(string userId)
         {
@@ -208,7 +214,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 // ADD MONTHLY SHEET
                 var newMonthsToExport = exportData.sleepSummary
                     //.OrderByDescending(s => s.summary_date)
-                    .Select(s => s.summary_date.ToString(_options.DateFormat).ToUpper())
+                    .Select(s => GetDateNameString(s.summary_date))
                     .Where(t => !spreadSheet.Sheets.Any(s => s.Properties.Title == t))
                     .Distinct()
                     .ToList();
@@ -408,7 +414,7 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    string sheetName = GetDateNameString(currentDate);
                     ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{sleepRange.Item1}{row}:{sleepRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 
@@ -447,7 +453,7 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    string sheetName = GetDateNameString(currentDate);
                     ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{activityRange.Item1}{row}:{activityRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 
@@ -477,7 +483,7 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     IList<IList<object>> data = new List<IList<object>>();
                     data.Add(list);
-                    string sheetName = currentDate.ToString(_options.DateFormat).ToUpper();
+                    string sheetName = GetDateNameString(currentDate);
                     ValueRange valueRange = new ValueRange() { Range = $"DATA {sheetName}!{readinessRange.Item1}{row}:{readinessRange.Item2}{row}", Values = data };
                     batchUpdateValuesRequest.Data.Add(valueRange);
 

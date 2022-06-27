@@ -156,7 +156,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     var newTokenResult = await _mediator.Send(new RefreshTokenPersistCommand() { UserId = userId, RefreshToken = apiByUser.RefreshToken, Api = Name });
 
                     if (newTokenResult.Succeeded)
+                    { 
                         token = newTokenResult.Data;
+                    }
                     else
                     {
                         string message = String.Join(System.Environment.NewLine, newTokenResult.Messages);
@@ -276,11 +278,8 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                 await _unitOfWork.Commit(cancellationToken);
 
-#if DEBUG
                 await _sheetApi.ExportData(userId);
-#else
-                BackgroundJob.Enqueue(() => _sheetApi.ExportData(userId));
-#endif
+                //BackgroundJob.Enqueue(() => _sheetApi.ExportData(userId)); // SEEMS TO MIX USER_ID FOR DIFFERENT TASKS
             }
         }
     }

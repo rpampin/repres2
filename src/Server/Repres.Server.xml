@@ -209,6 +209,11 @@
             <param name="model"></param>
             <returns></returns>
         </member>
+        <member name="T:Repres.Server.Controllers.PingController">
+            <summary>
+            Abstract BaseApi Controller Class
+            </summary>
+        </member>
         <member name="M:Repres.Server.Controllers.Utilities.AuditsController.GetUserTrailsAsync">
             <summary>
             Get Current User Audit Trails
