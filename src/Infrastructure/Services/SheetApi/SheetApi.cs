@@ -210,7 +210,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 // ADD MONTHLY SHEET
                 var newMonthsToExport = exportData.sleepSummary
                     //.OrderByDescending(s => s.summary_date)
-                    .Select(s => GetDateNameString(s.summary_date, user.Language))
+                    .Select(s => GetDateNameString(s.summary_date.ToUniversalTime().AddDays(1), user.Language))
                     .Where(t => !spreadSheet.Sheets.Any(s => s.Properties.Title == t))
                     .Distinct()
                     .ToList();
