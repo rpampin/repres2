@@ -14,6 +14,9 @@ namespace Repres.Application.Requests.Identity
         public string TimeZoneId { get; set; }
 
         [Required]
+        public string Language { get; set; }
+
+        [Required]
         [EmailAddress]
         public string Email { get; set; }
 

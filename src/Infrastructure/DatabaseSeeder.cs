@@ -93,6 +93,7 @@ namespace Repres.Infrastructure
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
+                    Language = "de-DE",
                     TimeZoneId = "FLE Standard Time",
                     IsActive = true
                 };
@@ -107,6 +108,7 @@ namespace Repres.Infrastructure
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
                     TimeZoneId = "FLE Standard Time",
+                    Language = "de-DE",
                     IsActive = true
                 };
 #endif
@@ -157,6 +159,7 @@ namespace Repres.Infrastructure
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
+                    Language = "en-US",
                     IsActive = true
                 };
                 var basicUserInDb = await _userManager.FindByEmailAsync(basicUser.Email);

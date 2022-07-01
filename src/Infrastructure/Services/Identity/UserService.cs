@@ -76,6 +76,7 @@ namespace Repres.Infrastructure.Services.Identity
                 PhoneNumber = request.PhoneNumber,
                 IsActive = request.ActivateUser,
                 EmailConfirmed = request.AutoConfirmEmail,
+                Language = request.Language,
                 TimeZoneId = TimeZoneInfo.FindSystemTimeZoneById(request.TimeZoneId).Id
             };
 

@@ -15,6 +15,8 @@ namespace Repres.Application.Interfaces.Services.Account
 
         Task<IResult<string>> GetProfileTimeZoneAsync(string userId);
 
+        Task<IResult<string>> GetProfileLanguageAsync(string userId);
+
         Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId);
     }
 }

@@ -1,22 +1,24 @@
-﻿using Repres.Application.Requests.Identity;
-using Repres.Client.Extensions;
+﻿using Blazored.FluentValidation;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
-using System;
-using System.IO;
-using System.Threading.Tasks;
-using Blazored.FluentValidation;
-using Repres.Shared.Constants.Storage;
-using Repres.Client.Infrastructure.Managers.TimeZone;
-using System.Linq;
-using System.Collections.Generic;
+using Repres.Application.Features.Languages.Queries.GetAll;
 using Repres.Application.Features.TimeZones.Queries.GetAll;
+using Repres.Application.Requests.Identity;
+using Repres.Client.Extensions;
+using Repres.Client.Infrastructure.Managers.TimeZone;
+using Repres.Shared.Constants.Storage;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Repres.Client.Pages.Identity
 {
     public partial class Profile
     {
+        [Inject] private ILanguageManager LanguageManager { get; set; }
         [Inject] private ITimeZoneManager TimeZoneManager { get; set; }
 
         private FluentValidationValidator _fluentValidationValidator;
@@ -24,6 +26,7 @@ namespace Repres.Client.Pages.Identity
         private char _firstLetterOfName;
         private readonly UpdateProfileRequest _profileModel = new();
         private List<GetAllTimeZonesResponse> _timeZones = new();
+        private List<GetAllLanguagesResponse> _languages = new();
 
         public string UserId { get; set; }
 
@@ -50,6 +53,9 @@ namespace Repres.Client.Pages.Identity
             var timeZoneResponse = await TimeZoneManager.GetAllAsync();
             if (timeZoneResponse.Succeeded)
                 _timeZones = timeZoneResponse.Data.ToList();
+            var languagesResponse = await LanguageManager.GetAllAsync();
+            if (languagesResponse.Succeeded)
+                _languages = languagesResponse.Data.ToList();
 
             await LoadDataAsync();
         }
@@ -74,9 +80,14 @@ namespace Repres.Client.Pages.Identity
             }
 
             var timeZone = await _accountManager.GetProfileTimeZoneAsync(UserId);
-            if (data.Succeeded)
+            if (timeZone.Succeeded)
             {
                 _profileModel.TimeZoneId = timeZone.Data;
+            }
+            var language = await _accountManager.GetProfileLanguageAsync(UserId);
+            if (language.Succeeded)
+            {
+                _profileModel.Language = language.Data;
             }
         }
 

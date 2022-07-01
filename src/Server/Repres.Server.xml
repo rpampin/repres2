@@ -57,6 +57,13 @@
             <param name="userId"></param>
             <returns>Status 200 OK </returns>
         </member>
+        <member name="M:Repres.Server.Controllers.Identity.AccountController.GetProfileLanguageAsync(System.String)">
+            <summary>
+            Get Profile language by Id
+            </summary>
+            <param name="userId"></param>
+            <returns>Status 200 OK </returns>
+        </member>
         <member name="M:Repres.Server.Controllers.Identity.AccountController.UpdateProfilePictureAsync(Repres.Application.Requests.Identity.UpdateProfilePictureRequest)">
             <summary>
             Update Profile Picture
@@ -278,6 +285,12 @@
             <param name="onlyCurrentGroup"></param>
             <param name="currentGroup"></param>
             <returns></returns>
+        </member>
+        <member name="M:Repres.Server.Controllers.Utilities.LanguageController.GetAll">
+            <summary>
+            Get All Time Zones
+            </summary>
+            <returns>Status 200 OK</returns>
         </member>
         <member name="M:Repres.Server.Controllers.Utilities.Misc.DocumentsController.GetAll(System.Int32,System.Int32,System.String)">
             <summary>

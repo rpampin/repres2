@@ -16,6 +16,12 @@
             return $"api/identity/account/time-zone/{userId}";
         }
 
+        public static string GetProfileLanguage(string userId)
+        {
+            return $"api/identity/account/language/{userId}";
+        }
+
+
         public static string UpdateProfilePicture(string userId)
         {
             return $"api/identity/account/profile-picture/{userId}";

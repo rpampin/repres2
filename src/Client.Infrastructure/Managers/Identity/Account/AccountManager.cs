@@ -40,6 +40,12 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Account
             return await response.ToResult<string>();
         }
 
+        public async Task<IResult<string>> GetProfileLanguageAsync(string userId)
+        {
+            var response = await _httpClient.GetAsync(Routes.AccountEndpoints.GetProfileLanguage(userId));
+            return await response.ToResult<string>();
+        }
+
         public async Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId)
         {
             var response = await _httpClient.PostAsJsonAsync(Routes.AccountEndpoints.UpdateProfilePicture(userId), request);

@@ -70,6 +70,18 @@ namespace Repres.Server.Controllers.Identity
         }
 
         /// <summary>
+        /// Get Profile language by Id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>Status 200 OK </returns>
+        [HttpGet("language/{userId}")]
+        //[ResponseCache(NoStore = false, Location = ResponseCacheLocation.Client, Duration = 60)]
+        public async Task<IActionResult> GetProfileLanguageAsync(string userId)
+        {
+            return Ok(await _accountService.GetProfileLanguageAsync(userId));
+        }
+
+        /// <summary>
         /// Update Profile Picture
         /// </summary>
         /// <param name="request"></param>
