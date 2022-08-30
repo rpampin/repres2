@@ -94,7 +94,7 @@ namespace Repres.Infrastructure
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
                     Language = "de-DE",
-                    TimeZoneId = "FLE Standard Time",
+                    UtcMinutes = 0,
                     IsActive = true
                 };
 #else
@@ -107,7 +107,7 @@ namespace Repres.Infrastructure
                     EmailConfirmed = true,
                     PhoneNumberConfirmed = true,
                     CreatedOn = DateTime.Now,
-                    TimeZoneId = "FLE Standard Time",
+                    UtcMinutes = 60,
                     Language = "de-DE",
                     IsActive = true
                 };

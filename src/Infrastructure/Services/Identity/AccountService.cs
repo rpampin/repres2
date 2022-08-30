@@ -69,7 +69,7 @@ namespace Repres.Infrastructure.Services.Identity
                 user.LastName = request.LastName;
                 user.PhoneNumber = request.PhoneNumber;
                 user.Language = request.Language;
-                user.TimeZoneId = request.TimeZoneId;
+                user.UtcMinutes = request.UtcMinutes.Value;
                 var phoneNumber = await _userManager.GetPhoneNumberAsync(user);
                 if (request.PhoneNumber != phoneNumber)
                 {
@@ -96,14 +96,14 @@ namespace Repres.Infrastructure.Services.Identity
             return await Result<string>.SuccessAsync(data: user.ProfilePictureDataUrl);
         }
 
-        public async Task<IResult<string>> GetProfileTimeZoneAsync(string userId)
+        public async Task<IResult<int>> GetProfileUtcMinutesAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                return await Result<string>.FailAsync(_localizer["User Not Found"]);
+                return await Result<int>.FailAsync(_localizer["User Not Found"]);
             }
-            return await Result<string>.SuccessAsync(data: user.TimeZoneId);
+            return await Result<int>.SuccessAsync(data: user.UtcMinutes);
         }
 
         public async Task<IResult<string>> GetProfileLanguageAsync(string userId)

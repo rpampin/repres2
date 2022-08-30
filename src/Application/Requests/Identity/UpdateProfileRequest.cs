@@ -9,7 +9,7 @@ namespace Repres.Application.Requests.Identity
         [Required]
         public string LastName { get; set; }
         [Required]
-        public string TimeZoneId { get; set; }
+        public int? UtcMinutes { get; set; }
         [Required]
         public string Language { get; set; }
         public string PhoneNumber { get; set; }

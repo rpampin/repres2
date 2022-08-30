@@ -179,8 +179,11 @@ namespace Repres.Server.Extensions
             IConfiguration configuration)
             => services
                 .AddDbContext<BlazorHeroContext>(options => options
+#if DEBUG
+                .UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
+#else
                 .UseNpgsql(GetConnectionString(Environment.GetEnvironmentVariable("DATABASE_URL"))))
-                //.UseNpgsql(configuration.GetConnectionString("DefaultConnection")))
+#endif
                 //.UseSqlServer(configuration.GetConnectionString("DefaultConnection")))
                 .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
 

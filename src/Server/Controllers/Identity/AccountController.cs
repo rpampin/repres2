@@ -66,7 +66,7 @@ namespace Repres.Server.Controllers.Identity
         //[ResponseCache(NoStore = false, Location = ResponseCacheLocation.Client, Duration = 60)]
         public async Task<IActionResult> GetProfileTimeZoneAsync(string userId)
         {
-            return Ok(await _accountService.GetProfileTimeZoneAsync(userId));
+            return Ok(await _accountService.GetProfileUtcMinutesAsync(userId));
         }
 
         /// <summary>

@@ -12,7 +12,7 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Account
 
         Task<IResult<string>> GetProfilePictureAsync(string userId);
 
-        Task<IResult<string>> GetProfileTimeZoneAsync(string userId);
+        Task<IResult<int>> GetProfileUtcMinutesAsync(string userId);
 
         Task<IResult<string>> GetProfileLanguageAsync(string userId);
 

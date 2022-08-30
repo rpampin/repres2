@@ -64,10 +64,10 @@
                             <MudTextField @bind-Value="@_profileModel.Email" Label="@_localizer["Email"]" For="@(() => _profileModel.Email)" Variant="Variant.Outlined" InputType="InputType.Email" Disabled=true />
                         </MudItem>
                         <MudItem xs="12">
-                            <MudSelect T="string" Label="@_localizer["Time Zone"]" @bind-Value="_profileModel.TimeZoneId" For="@(() => _profileModel.TimeZoneId)">
-                                @foreach (var timeZone in _timeZones)
+                            <MudSelect T="int?" Label="@_localizer["UTC Value"]" @bind-Value="_profileModel.UtcMinutes" For="@(() => _profileModel.UtcMinutes)">
+                                @foreach (var val in _utcValues)
                                 {
-                                    <MudSelectItem T="string" Value="@timeZone.Id">@timeZone.DisplayName</MudSelectItem>
+                                    <MudSelectItem T="int?" Value="@val.Value">@val.Key</MudSelectItem>
                                 }
                             </MudSelect>
                         </MudItem>

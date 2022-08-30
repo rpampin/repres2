@@ -15,8 +15,8 @@ namespace Repres.Application.Validators.Requests.Identity
             RuleFor(request => request.Email)
                 .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage(x => localizer["Email is required"])
                 .EmailAddress().WithMessage(x => localizer["Email is not correct"]);
-            RuleFor(request => request.TimeZoneId)
-                .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage(x => localizer["Time Zone is required"]);
+            RuleFor(request => request.UtcMinutes)
+                .Must(x => x.HasValue).WithMessage(x => localizer["Must select an UTC value"]);
             RuleFor(request => request.Language)
                 .Must(x => !string.IsNullOrWhiteSpace(x)).WithMessage(x => localizer["Language is required"]);
             RuleFor(request => request.UserName)

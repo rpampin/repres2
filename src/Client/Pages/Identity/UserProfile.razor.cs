@@ -3,6 +3,10 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Repres.Client.Infrastructure.Managers.TimeZone;
+using Repres.Application.Features.Languages.Queries.GetAll;
+using Repres.Shared.Constants.Localization;
+using System.Linq;
 
 namespace Repres.Client.Pages.Identity
 {
@@ -18,6 +22,8 @@ namespace Repres.Client.Pages.Identity
         private string _lastName;
         private string _phoneNumber;
         private string _email;
+        private int _utcMinutes;
+        private string _language;
 
         private bool _loaded;
 
@@ -40,6 +46,7 @@ namespace Repres.Client.Pages.Identity
         }
 
         [Parameter] public string ImageDataUrl { get; set; }
+        private KeyValuePair<string, int>[] _utcValues = UtcConstants.Values;
 
         protected override async Task OnInitializedAsync()
         {
@@ -55,10 +62,22 @@ namespace Repres.Client.Pages.Identity
                     _email = user.Email;
                     _phoneNumber = user.PhoneNumber;
                     _active = user.IsActive;
+
                     var data = await _accountManager.GetProfilePictureAsync(userId);
                     if (data.Succeeded)
                     {
                         ImageDataUrl = data.Data;
+                    }
+
+                    var timeZone = await _accountManager.GetProfileUtcMinutesAsync(userId);
+                    if (timeZone.Succeeded)
+                    {
+                        _utcMinutes = timeZone.Data;
+                    }
+                    var language = await _accountManager.GetProfileLanguageAsync(userId);
+                    if (language.Succeeded)
+                    {
+                        _language = language.Data;
                     }
                 }
                 Title = $"{_firstName} {_lastName}'s {_localizer["Profile"]}";

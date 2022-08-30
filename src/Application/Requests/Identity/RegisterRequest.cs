@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Repres.Application.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace Repres.Application.Requests.Identity
 {
@@ -11,7 +12,7 @@ namespace Repres.Application.Requests.Identity
         public string LastName { get; set; }
 
         [Required]
-        public string TimeZoneId { get; set; }
+        public int? UtcMinutes { get; set; }
 
         [Required]
         public string Language { get; set; }

@@ -67,10 +67,13 @@ else
                             <MudField Label="@_localizer["Last Name"]" Variant="Variant.Text">@_lastName</MudField>
                         </MudItem>
                         <MudItem xs="12" md="6">
-                            <MudField Label="@_localizer["Phone Number"]" Variant="Variant.Text">@_phoneNumber</MudField>
+                            <MudField Label="@_localizer["Email"]" Variant="Variant.Text">@_email</MudField>
                         </MudItem>
                         <MudItem xs="12" md="6">
-                            <MudField Label="@_localizer["Email"]" Variant="Variant.Text">@_email</MudField>
+                            <MudField Label="@_localizer["UTC Value"]" Variant="Variant.Text">@_utcValues.FirstOrDefault(x => x.Value == _utcMinutes).Key</MudField>
+                        </MudItem>
+                        <MudItem xs="12" md="6">
+                            <MudField Label="@_localizer["Language"]" Variant="Variant.Text">@_language</MudField>
                         </MudItem>
                     </MudGrid>
                 </MudCardContent>

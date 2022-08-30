@@ -361,12 +361,9 @@ namespace Repres.Infrastructure.Services.SheetApi
                     }
                 }
 
-                /// DATA EXPORT
+                // DATA EXPORT
                 BatchUpdateValuesRequest batchUpdateValuesRequest = new BatchUpdateValuesRequest();
                 batchUpdateValuesRequest.Data = new List<ValueRange>();
-
-                // GET USER TIME ZONE
-                var userTimeZone = TimeZoneInfo.GetSystemTimeZones().Where(tz => tz.Id == user.TimeZoneId).Single();
 
                 ISet<string> updatedSheet = new HashSet<string>();
                 var sleepRangeSplit = _options.SleepRange.Split(':');
@@ -397,8 +394,8 @@ namespace Repres.Infrastructure.Services.SheetApi
                     list.Add(sleep.onset_latency); //Sleep Latency
                     list.Add(null); //Sleep Timing // TODO: NOT IN API?
                     // CHANGE TIMEZONE OF BEDTIME START/END
-                    var bedtime_start = sleep.bedtime_start.ToUniversalTime().Add(userTimeZone.BaseUtcOffset);
-                    var bedtime_end = sleep.bedtime_end.ToUniversalTime().Add(userTimeZone.BaseUtcOffset);
+                    var bedtime_start = sleep.bedtime_start.ToUniversalTime().AddMinutes(user.UtcMinutes);
+                    var bedtime_end = sleep.bedtime_end.ToUniversalTime().AddMinutes(user.UtcMinutes);
                     list.Add(bedtime_start.ToString("yyyy-MM-dd HH:mm")); //Bedtime Start
                     list.Add(bedtime_end.ToString("yyyy-MM-dd HH:mm")); //Bedtime End
                     list.Add(sleep.hr_average); //Average Resting Heart Rate

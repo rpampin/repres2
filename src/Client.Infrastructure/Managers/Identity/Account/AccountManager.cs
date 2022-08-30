@@ -34,10 +34,10 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Account
             return await response.ToResult<string>();
         }
 
-        public async Task<IResult<string>> GetProfileTimeZoneAsync(string userId)
+        public async Task<IResult<int>> GetProfileUtcMinutesAsync(string userId)
         {
             var response = await _httpClient.GetAsync(Routes.AccountEndpoints.GetProfileTimeZone(userId));
-            return await response.ToResult<string>();
+            return await response.ToResult<int>();
         }
 
         public async Task<IResult<string>> GetProfileLanguageAsync(string userId)

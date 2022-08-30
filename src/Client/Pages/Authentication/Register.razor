@@ -34,10 +34,10 @@
             <MudTextField T="string" Label="@_localizer["E-mail"]" @bind-Value="_registerUserModel.Email" For="@(() => _registerUserModel.Email)" />
         </MudItem>
         <MudItem xs="12">
-            <MudSelect T="string" Label="@_localizer["Time Zone"]" @bind-Value="_registerUserModel.TimeZoneId" For="@(() => _registerUserModel.TimeZoneId)">
-                @foreach (var timeZone in _timeZones)
+            <MudSelect T="int?" Label="Utc" @bind-Value="_registerUserModel.UtcMinutes" For="@(() => _registerUserModel.UtcMinutes)">
+                @foreach (var val in _utcValues)
                 {
-                    <MudSelectItem T="string" Value="@timeZone.Id">@timeZone.DisplayName</MudSelectItem>
+                    <MudSelectItem T="int?" Value="@val.Value">@val.Key</MudSelectItem>
                 }
             </MudSelect>
         </MudItem>
@@ -49,9 +49,6 @@
                 }
             </MudSelect>
         </MudItem>
-        @*<MudItem xs="12" sm="6" md="6">
-            <MudTextField T="string" Label="@_localizer["Phone Number"]" @bind-Value="_registerUserModel.PhoneNumber" For="@(() => _registerUserModel.PhoneNumber)" />
-        </MudItem>*@
         <MudItem xs="12" sm="6" md="6">
             <MudTextField For="@(() => _registerUserModel.Password)" InputType="@_passwordInput" Adornment="Adornment.End" AdornmentIcon="@_passwordInputIcon" OnAdornmentClick="TogglePasswordVisibility" @bind-Value="_registerUserModel.Password" Label="@_localizer["Password"]" />
         </MudItem>
