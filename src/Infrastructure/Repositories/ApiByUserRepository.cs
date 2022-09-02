@@ -26,7 +26,7 @@ namespace Repres.Infrastructure.Repositories
                 x.Api.Name == api &&
                 ((
                     x.AccessExpiryDate.HasValue && x.AccessExpiryDate.Value >= _dateTimeService.NowUtc) ||
-                    x.RefreshExpiryDate.HasValue && x.RefreshExpiryDate.Value >= _dateTimeService.NowUtc
+                    !x.RefreshExpiryDate.HasValue || x.RefreshExpiryDate.Value >= _dateTimeService.NowUtc
                 ));
     }
 }

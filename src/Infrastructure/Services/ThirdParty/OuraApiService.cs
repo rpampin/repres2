@@ -147,7 +147,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                 if (apiByUser.AccessExpiryDate.HasValue && apiByUser.AccessExpiryDate.Value > _dateTimeService.NowUtc)
                     token = apiByUser.AccessToken;
-                else if (apiByUser.RefreshExpiryDate.HasValue && apiByUser.RefreshExpiryDate.Value > _dateTimeService.NowUtc)
+                else if (!apiByUser.RefreshExpiryDate.HasValue || apiByUser.RefreshExpiryDate.Value > _dateTimeService.NowUtc)
                 {
                     var newTokenResult = await _mediator.Send(new RefreshTokenPersistCommand() { UserId = userId, RefreshToken = apiByUser.RefreshToken, Api = Name });
 
