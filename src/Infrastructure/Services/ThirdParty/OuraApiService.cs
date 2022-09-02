@@ -215,6 +215,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     catch (Exception ex)
                     {
                         Log(context, ex.Message, ConsoleTextColor.Red);
+                        throw;
                     }
 
                     // READINESS
@@ -239,6 +240,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     catch (Exception ex)
                     {
                         Log(context, ex.Message, ConsoleTextColor.Red);
+                        throw;
                     }
 
                     // ACTIVITY
@@ -263,6 +265,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     catch (Exception ex)
                     {
                         Log(context, ex.Message, ConsoleTextColor.Red);
+                        throw;
                     }
                 }
 
