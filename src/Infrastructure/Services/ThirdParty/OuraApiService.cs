@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using Hangfire.Console;
+using Hangfire.Server;
 using MediatR;
 using Microsoft.Extensions.Options;
 using Repres.Application.Features.Apis.Commands.RefreshTokenPersist;
@@ -136,7 +138,17 @@ namespace Repres.Infrastructure.Services.ThirdParty
             await _mailService.SendAsync(mailRequest);
         }
 
-        public async Task ExecuteScheduledJob(string userId, DateTime? start, DateTime? end, CancellationToken cancellationToken)
+        void Log(PerformContext context, string message, ConsoleTextColor? consoleTextColor = null)
+        {
+            if (context != null)
+            {
+                context.SetTextColor(consoleTextColor ?? ConsoleTextColor.White);
+                context.WriteLine(message);
+                context.ResetTextColor();
+            }
+        }
+
+        public async Task ExecuteScheduledJob(string userId, PerformContext context, DateTime? start, DateTime? end, CancellationToken cancellationToken)
         {
             var user = await _blazorHeroContext.Users.FindAsync(userId);
 
@@ -152,7 +164,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     var newTokenResult = await _mediator.Send(new RefreshTokenPersistCommand() { UserId = userId, RefreshToken = apiByUser.RefreshToken, Api = Name });
 
                     if (newTokenResult.Succeeded)
-                    { 
+                    {
                         token = newTokenResult.Data;
                     }
                     else
@@ -194,8 +206,16 @@ namespace Repres.Infrastructure.Services.ThirdParty
                         throw new InvalidOperationException(error.detail);
                     }
 
-                    var sleepData = await response.ToResult<OuraSummaryResponse>();
-                    sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
+                    try
+                    {
+                        Log(context, await response.Content.ReadAsStringAsync());
+                        var sleepData = await response.ToResult<OuraSummaryResponse>();
+                        sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(context, ex.Message, ConsoleTextColor.Red);
+                    }
 
                     // READINESS
                     uri = _options.ApiBaseAddress + _options.ReadinessSummaries;
@@ -210,8 +230,16 @@ namespace Repres.Infrastructure.Services.ThirdParty
                         throw new InvalidOperationException(error.detail);
                     }
 
-                    var readinessData = await response.ToResult<OuraSummaryResponse>();
-                    readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
+                    try
+                    {
+                        Log(context, await response.Content.ReadAsStringAsync());
+                        var readinessData = await response.ToResult<OuraSummaryResponse>();
+                        readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(context, ex.Message, ConsoleTextColor.Red);
+                    }
 
                     // ACTIVITY
                     uri = _options.ApiBaseAddress + _options.ActivitySummaries;
@@ -226,8 +254,16 @@ namespace Repres.Infrastructure.Services.ThirdParty
                         throw new InvalidOperationException(error.detail);
                     }
 
-                    var activityData = await response.ToResult<OuraSummaryResponse>();
-                    activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
+                    try
+                    {
+                        Log(context, await response.Content.ReadAsStringAsync());
+                        var activityData = await response.ToResult<OuraSummaryResponse>();
+                        activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
+                    }
+                    catch (Exception ex)
+                    {
+                        Log(context, ex.Message, ConsoleTextColor.Red);
+                    }
                 }
 
                 foreach (var sleep in sleepSummary)

@@ -44,7 +44,7 @@ namespace Repres.Infrastructure.Jobs
                     try
                     {
                         context.WriteLine($"Getting data from {apiUser.Api.Name} for USERID: {apiUser.UserId}");
-                        await apiService.ExecuteScheduledJob(apiUser.UserId, null, _dateTimeService.NowUtc, cancellationToken);
+                        await apiService.ExecuteScheduledJob(apiUser.UserId, context, null, _dateTimeService.NowUtc, cancellationToken);
                     }
                     catch (Exception ex)
                     {
@@ -59,7 +59,7 @@ namespace Repres.Infrastructure.Jobs
             if (hadErrors)
             {
                 context.SetTextColor(ConsoleTextColor.Red);
-                context.WriteLine("GoogleCalcExportExecution finished with errors");
+                context.WriteLine("ApiProccessExecution finished with errors");
                 context.ResetTextColor();
                 throw new InvalidOperationException();
             }

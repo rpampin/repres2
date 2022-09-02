@@ -28,6 +28,7 @@ namespace Repres.Infrastructure.Jobs
 
         public async Task Execute(PerformContext context, CancellationToken cancellationToken)
         {
+            return;
             context.WriteLine("Commencing GoogleCalcExportExecution Task");
 
             bool hadErrors = false;

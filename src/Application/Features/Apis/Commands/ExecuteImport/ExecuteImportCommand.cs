@@ -26,7 +26,7 @@ namespace Repres.Application.Features.Apis.Commands.ExecuteImport
         public async Task<Unit> Handle(ExecuteImportCommand request, CancellationToken cancellationToken)
         {
             foreach (var service in _apiServices)
-                await service.ExecuteScheduledJob(request.UserId, request.Start, request.End, cancellationToken);
+                await service.ExecuteScheduledJob(request.UserId, null, request.Start, request.End, cancellationToken);
             return Unit.Value;
         }
     }
