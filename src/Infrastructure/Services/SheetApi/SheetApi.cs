@@ -8,6 +8,7 @@ using Repres.Application.Interfaces.Repositories;
 using Repres.Application.Interfaces.Services;
 using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Domain.Entities.ThirdParty.Oura;
+using Repres.Infrastructure.Contexts;
 using Repres.Infrastructure.Helper;
 using Repres.Infrastructure.Models.Identity;
 using Repres.Infrastructure.Services.SheetApi.Options;
@@ -30,6 +31,7 @@ namespace Repres.Infrastructure.Services.SheetApi
         private readonly SpreadsheetsResource.ValuesResource _googleSheetValues;
         private readonly SpreadsheetsResource _googleSpreadSheet;
         private readonly UserManager<BlazorHeroUser> _userManager;
+        private readonly BlazorHeroContext _blazorHeroContext;
         private readonly SheetOptions _options;
 
         public SheetApi(IOuraRepository ouraRepository,
@@ -37,7 +39,8 @@ namespace Repres.Infrastructure.Services.SheetApi
                         IOptionsSnapshot<SheetOptions> options,
                         UserManager<BlazorHeroUser> userManager,
                         IUnitOfWork<int> unitOfWork,
-                        IDateTimeService dateTimeService)
+                        IDateTimeService dateTimeService,
+                        BlazorHeroContext blazorHeroContext)
         {
             _ouraRepository = ouraRepository;
             _googleDrive = googleSheetsHelper.DriveService;
@@ -47,6 +50,7 @@ namespace Repres.Infrastructure.Services.SheetApi
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _unitOfWork = unitOfWork;
             _dateTimeService = dateTimeService;
+            _blazorHeroContext = blazorHeroContext;
         }
 
         string GetDateNameString(DateTime date, string userLanguage)
@@ -56,7 +60,7 @@ namespace Repres.Infrastructure.Services.SheetApi
         {
             // CHECK IF THERE'S DATA TO BE EXPORTED
             var date = _dateTimeService.NowUtc;
-            
+
             var exportData = await _ouraRepository.GetDataToExport(userId);
 
             if (exportData.sleepSummary.Count > 0 || exportData.readinessSummary.Count > 0 || exportData.activitySummary.Count > 0)
@@ -81,7 +85,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     // GET ADMIN DATA
                     var administrators = await _userManager.GetUsersInRoleAsync(RoleConstants.AdministratorRole);
                     var sharingUsers = administrators.Union(new List<BlazorHeroUser> { user });
-                    
+
                     // CREATE NEW SHEET
                     var spreadSheetCreation = _googleSpreadSheet.Create(new Spreadsheet()
                     {
@@ -208,9 +212,12 @@ namespace Repres.Infrastructure.Services.SheetApi
                 }
 
                 // ADD MONTHLY SHEET
-                var newMonthsToExport = exportData.sleepSummary
-                    //.OrderByDescending(s => s.summary_date)
-                    .Select(s => GetDateNameString(s.summary_date.ToUniversalTime().AddDays(1), user.Language))
+                var newMonthsToExport =
+                    exportData.sleepSummary.Select(s => s.summary_date)
+                    .Union(exportData.readinessSummary.Select(s => s.summary_date))
+                    .Union(exportData.activitySummary.Select(s => s.summary_date))
+                    .Distinct()
+                    .Select(date => GetDateNameString(date.ToUniversalTime().AddDays(1), user.Language))
                     .Where(t => !spreadSheet.Sheets.Any(s => s.Properties.Title == t))
                     .Distinct()
                     .ToList();
@@ -361,6 +368,12 @@ namespace Repres.Infrastructure.Services.SheetApi
                     }
                 }
 
+                // DELETE PREVIOUS EXPORTED DATA
+                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
+                _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
+                _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
+                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
+
                 // DATA EXPORT
                 BatchUpdateValuesRequest batchUpdateValuesRequest = new BatchUpdateValuesRequest();
                 batchUpdateValuesRequest.Data = new List<ValueRange>();
@@ -488,57 +501,58 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                 batchUpdateValuesRequest.ValueInputOption = "USER_ENTERED";
                 if (batchUpdateValuesRequest.Data.Count > 0)
-                    await _googleSheetValues.BatchUpdate(batchUpdateValuesRequest, spreadSheet.SpreadsheetId).ExecuteAsync();
-
-                spreadSheet = await _googleSpreadSheet.Get(spreadSheet.SpreadsheetId).ExecuteAsync();
-
-                // UPDATE WEIGHT CHART Y AXIS RANGE
-                if (updatedSheet.Count > 0)
                 {
-                    BatchUpdateSpreadsheetRequest batchUpdateTemplateSheetName = new BatchUpdateSpreadsheetRequest();
-                    batchUpdateTemplateSheetName.Requests = new List<Request>();
+                    await _googleSheetValues.BatchUpdate(batchUpdateValuesRequest, spreadSheet.SpreadsheetId).ExecuteAsync();
+                    await _unitOfWork.Commit(CancellationToken.None);
 
-                    bool updateCharts = false;
-                    foreach (var sheetName in updatedSheet)
+                    spreadSheet = await _googleSpreadSheet.Get(spreadSheet.SpreadsheetId).ExecuteAsync();
+
+                    // UPDATE WEIGHT CHART Y AXIS RANGE
+                    if (updatedSheet.Count > 0)
                     {
-                        var sheet = spreadSheet.Sheets.Where(s => s.Properties.Title == sheetName).Single();
-                        var weightChart = sheet.Charts.Where(c => c.Spec.Title == _options.MonthWeightChartName).SingleOrDefault();
-                        if (weightChart != null)
+                        BatchUpdateSpreadsheetRequest batchUpdateTemplateSheetName = new BatchUpdateSpreadsheetRequest();
+                        batchUpdateTemplateSheetName.Requests = new List<Request>();
+
+                        bool updateCharts = false;
+                        foreach (var sheetName in updatedSheet)
                         {
-                            var weightRows = await _googleSheetValues.Get(spreadSheet.SpreadsheetId, $"{sheetName}!AG6:AG36").ExecuteAsync();
-                            var weightValues = weightRows.Values != null ? weightRows.Values.Select(v => Convert.ToDouble(v[0].ToString())).ToList() : new List<double>();
-
-                            var weightChartSpec = weightChart.Spec;
-                            for (var i = 0; i < weightChartSpec.BasicChart.Axis.Count; i++)
+                            var sheet = spreadSheet.Sheets.Where(s => s.Properties.Title == sheetName).Single();
+                            var weightChart = sheet.Charts.Where(c => c.Spec.Title == _options.MonthWeightChartName).SingleOrDefault();
+                            if (weightChart != null)
                             {
-                                if (weightChartSpec.BasicChart.Axis[i].Position == "LEFT_AXIS")
+                                var weightRows = await _googleSheetValues.Get(spreadSheet.SpreadsheetId, $"{sheetName}!AG6:AG36").ExecuteAsync();
+                                var weightValues = weightRows.Values != null ? weightRows.Values.Select(v => Convert.ToDouble(v[0].ToString())).ToList() : new List<double>();
+
+                                var weightChartSpec = weightChart.Spec;
+                                for (var i = 0; i < weightChartSpec.BasicChart.Axis.Count; i++)
                                 {
-                                    weightChartSpec.BasicChart.Axis[i].ViewWindowOptions = new ChartAxisViewWindowOptions
+                                    if (weightChartSpec.BasicChart.Axis[i].Position == "LEFT_AXIS")
                                     {
-                                        ViewWindowMax = weightValues.Any() ? weightValues.Max() + 5 : 100,
-                                        ViewWindowMin = weightValues.Any() ? weightValues.Min() - 5 : 0
-                                    };
-                                    updateCharts = true;
-                                    break;
+                                        weightChartSpec.BasicChart.Axis[i].ViewWindowOptions = new ChartAxisViewWindowOptions
+                                        {
+                                            ViewWindowMax = weightValues.Any() ? weightValues.Max() + 5 : 100,
+                                            ViewWindowMin = weightValues.Any() ? weightValues.Min() - 5 : 0
+                                        };
+                                        updateCharts = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            
-                            batchUpdateTemplateSheetName.Requests.Add(new Request()
-                            {
-                                UpdateChartSpec = new UpdateChartSpecRequest
+
+                                batchUpdateTemplateSheetName.Requests.Add(new Request()
                                 {
-                                    ChartId = weightChart.ChartId,
-                                    Spec = weightChartSpec
-                                }
-                            });
+                                    UpdateChartSpec = new UpdateChartSpecRequest
+                                    {
+                                        ChartId = weightChart.ChartId,
+                                        Spec = weightChartSpec
+                                    }
+                                });
+                            }
                         }
+
+                        if (batchUpdateTemplateSheetName.Requests.Count > 0 && updateCharts)
+                            await _googleSpreadSheet.BatchUpdate(batchUpdateTemplateSheetName, spreadSheet.SpreadsheetId).ExecuteAsync();
                     }
-
-                    if (batchUpdateTemplateSheetName.Requests.Count > 0 && updateCharts)
-                        await _googleSpreadSheet.BatchUpdate(batchUpdateTemplateSheetName, spreadSheet.SpreadsheetId).ExecuteAsync();
                 }
-
-                await _unitOfWork.Commit(CancellationToken.None);
             }
         }
 
@@ -550,7 +564,7 @@ namespace Repres.Infrastructure.Services.SheetApi
             int day = 1;
             int dataRow = 2;
             int dashboardRow = 6;
-            
+
             while (day <= 31)
             {
                 IList<IList<object>> data = new List<IList<object>>();

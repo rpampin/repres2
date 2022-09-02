@@ -99,6 +99,7 @@ namespace Repres.Server
             app.Initialize(_configuration);
 
             RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Execution", x => x.Execute(CancellationToken.None), "0 0 * * *");
+            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(CancellationToken.None), "0 3 * * *");
         }
     }
 }

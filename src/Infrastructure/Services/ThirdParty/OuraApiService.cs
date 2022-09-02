@@ -33,7 +33,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
         private readonly IOuraRepository _ouraRepository;
         private readonly IApiRepository _apiRepository;
         private readonly IApiByUserRepository _apiByUserRepository;
-        private readonly ISheetApi _sheetApi;
         private readonly IMailService _mailService;
         private readonly BlazorHeroContext _blazorHeroContext;
 
@@ -45,7 +44,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
                               IApiByUserRepository apiByUserRepository,
                               IDateTimeService dateTimeService,
                               IOptionsSnapshot<OuraAuthOptions> options,
-                              ISheetApi sheetApi,
                               IMailService mailService,
                               BlazorHeroContext blazorHeroContext)
         {
@@ -57,7 +55,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
             _apiRepository = apiRepository;
             _apiByUserRepository = apiByUserRepository;
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            _sheetApi = sheetApi;
             _mailService = mailService;
             _blazorHeroContext = blazorHeroContext;
         }
@@ -150,7 +147,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                 if (apiByUser.AccessExpiryDate.HasValue && apiByUser.AccessExpiryDate.Value > _dateTimeService.NowUtc)
                     token = apiByUser.AccessToken;
-                else if (!apiByUser.RefreshExpiryDate.HasValue || apiByUser.RefreshExpiryDate.Value > _dateTimeService.NowUtc)
+                else if (apiByUser.RefreshExpiryDate.HasValue && apiByUser.RefreshExpiryDate.Value > _dateTimeService.NowUtc)
                 {
                     var newTokenResult = await _mediator.Send(new RefreshTokenPersistCommand() { UserId = userId, RefreshToken = apiByUser.RefreshToken, Api = Name });
 
@@ -169,21 +166,13 @@ namespace Repres.Infrastructure.Services.ThirdParty
                 {
                     string message = $"Cannot access {apiByUser.Api.DisplayName} API. Please Re-authenticate.";
                     await NotifyReconnect(apiByUser, message, cancellationToken);
-                    // TRIGGER NOTIFICATION TO USER BECAUSE IT FAILED THE AUTHORIZATION PROCESS
                     throw new InvalidOperationException(message);
                 }
 
                 var lastSleepSummaryDate = await _ouraRepository.GetLastSleepSummaryDate(userId);
                 var lastReadinessSummaryDate = await _ouraRepository.GetLastReadinessSummaryDate(userId);
                 var lastActivitypSummaryDate = await _ouraRepository.GetLastActivitySummaryDate(userId);
-
-                // REMOVE OLD DATA TO KEEP DATABASE MINIMAL
-                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
-                
                 string endPrm = end.HasValue ? end.Value.ToString("yyyy-MM-dd") : _dateTimeService.NowUtc.ToString("yyyy-MM-dd");
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                //endPrm = new DateTime(2022, 5, 25).ToString("yyyy-MM-dd");
-
                 var initialDate = new DateTime(1970, 1, 1);
                 var sleepSummary = new List<Sleep>();
                 var readinessSummary = new List<Readiness>();
@@ -207,9 +196,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var sleepData = await response.ToResult<OuraSummaryResponse>();
                     sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
-                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
-                    if (sleepSummary.Count > 0)
-                        _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
 
                     // READINESS
                     uri = _options.ApiBaseAddress + _options.ReadinessSummaries;
@@ -226,9 +212,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var readinessData = await response.ToResult<OuraSummaryResponse>();
                     readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
-                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
-                    if (readinessSummary.Count > 0)
-                        _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
 
                     // ACTIVITY
                     uri = _options.ApiBaseAddress + _options.ActivitySummaries;
@@ -245,9 +228,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     var activityData = await response.ToResult<OuraSummaryResponse>();
                     activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
-                    // REMOVE PREVIOUS REGISTERS IF THERE'S NEW DATA TO EXPORT
-                    if (activitySummary.Count > 0)
-                        _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
                 }
 
                 foreach (var sleep in sleepSummary)
@@ -255,6 +235,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     if (!await _ouraRepository.SleepSummaryExists(userId, sleep.summary_date))
                     {
                         sleep.user_id = userId;
+                        sleep.exported_date = null;
                         await _unitOfWork.Repository<Sleep>().AddAsync(sleep);
                     }
                 }
@@ -263,6 +244,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     if (!await _ouraRepository.ReadinessSummaryExists(userId, readiness.summary_date))
                     {
                         readiness.user_id = userId;
+                        readiness.exported_date = null;
                         await _unitOfWork.Repository<Readiness>().AddAsync(readiness);
                     }
                 }
@@ -271,14 +253,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     if (!await _ouraRepository.ActivitySummaryExists(userId, activity.summary_date))
                     {
                         activity.user_id = userId;
+                        activity.exported_date = null;
                         await _unitOfWork.Repository<Activity>().AddAsync(activity);
                     }
                 }
 
                 await _unitOfWork.Commit(cancellationToken);
-
-                await _sheetApi.ExportData(userId);
-                //BackgroundJob.Enqueue(() => _sheetApi.ExportData(userId)); // SEEMS TO MIX USER_ID FOR DIFFERENT TASKS
             }
         }
     }

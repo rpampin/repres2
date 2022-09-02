@@ -24,8 +24,9 @@ namespace Repres.Infrastructure.Repositories
             => _repository.Entities.AnyAsync(x => 
                 x.UserId == user && 
                 x.Api.Name == api &&
-                (x.AccessExpiryDate.HasValue && x.AccessExpiryDate.Value >= _dateTimeService.NowUtc
-                || !x.RefreshExpiryDate.HasValue
-                || x.RefreshExpiryDate.HasValue && x.RefreshExpiryDate.Value >= _dateTimeService.NowUtc));
+                ((
+                    x.AccessExpiryDate.HasValue && x.AccessExpiryDate.Value >= _dateTimeService.NowUtc) ||
+                    x.RefreshExpiryDate.HasValue && x.RefreshExpiryDate.Value >= _dateTimeService.NowUtc
+                ));
     }
 }

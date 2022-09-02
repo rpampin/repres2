@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Repres.Application.Interfaces.Repositories;
-using Repres.Application.Interfaces.Services;
+using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Application.Interfaces.Services.ThirdParty;
 using Repres.Domain.Entities.ThirdParty;
 using System;
@@ -11,17 +11,17 @@ using System.Threading.Tasks;
 
 namespace Repres.Infrastructure.Jobs
 {
-    public class ApiProccessExecution
+    public class GoogleCalcExportExecution
     {
+        private readonly ISheetApi _sheetApi;
         private readonly IUnitOfWork<int> _unitOfWork;
-        private readonly IDateTimeService _dateTimeService;
         private readonly IEnumerable<IApiService> _apiServices;
 
-        public ApiProccessExecution(IUnitOfWork<int> unitOfWork, IEnumerable<IApiService> apiServices, IDateTimeService dateTimeService)
+        public GoogleCalcExportExecution(IUnitOfWork<int> unitOfWork, IEnumerable<IApiService> apiServices, ISheetApi sheetApi)
         {
             _unitOfWork = unitOfWork;
             _apiServices = apiServices;
-            _dateTimeService = dateTimeService;
+            _sheetApi = sheetApi;
         }
 
         public async Task Execute(CancellationToken cancellationToken)
@@ -38,7 +38,7 @@ namespace Repres.Infrastructure.Jobs
                 {
                     try
                     {
-                        await apiService.ExecuteScheduledJob(apiUser.UserId, null, _dateTimeService.NowUtc, cancellationToken);
+                        await _sheetApi.ExportData(apiUser.UserId);
                     }
                     catch (Exception ex)
                     {
