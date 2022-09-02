@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Hangfire.Console;
+using Hangfire.Server;
+using Microsoft.EntityFrameworkCore;
 using Repres.Application.Interfaces.Repositories;
 using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Application.Interfaces.Services.ThirdParty;
@@ -24,8 +26,11 @@ namespace Repres.Infrastructure.Jobs
             _sheetApi = sheetApi;
         }
 
-        public async Task Execute(CancellationToken cancellationToken)
+        public async Task Execute(PerformContext context, CancellationToken cancellationToken)
         {
+            context.WriteLine("Commencing GoogleCalcExportExecution Task");
+
+            bool hadErrors = false;
             var apiByUsers = await _unitOfWork
                 .Repository<ApiByUser>()
                 .Entities
@@ -38,13 +43,25 @@ namespace Repres.Infrastructure.Jobs
                 {
                     try
                     {
+                        context.WriteLine($"Exporting data to google for USERID: {apiUser.UserId}");
                         await _sheetApi.ExportData(apiUser.UserId);
                     }
                     catch (Exception ex)
                     {
-
+                        context.SetTextColor(ConsoleTextColor.Red);
+                        context.WriteLine($"USERID: {apiUser.UserId} process throwed an error.{Environment.NewLine}{ex.Message}");
+                        context.ResetTextColor();
+                        hadErrors = true;
                     }
                 }
+            }
+
+            if (hadErrors)
+            {
+                context.SetTextColor(ConsoleTextColor.Red);
+                context.WriteLine("GoogleCalcExportExecution finished with errors");
+                context.ResetTextColor();
+                throw new InvalidOperationException();
             }
         }
     }

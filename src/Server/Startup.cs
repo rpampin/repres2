@@ -1,4 +1,5 @@
 using Hangfire;
+using Hangfire.Console;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -57,7 +58,10 @@ namespace Repres.Server
             services.RegisterSwagger();
             services.AddInfrastructureMappings();
             //services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
-            services.AddHangfire(x => x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection")));
+            services.AddHangfire(x => {
+                x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection"));
+                x.UseConsole();
+            });
             services.AddHangfireServer(opt => opt.WorkerCount = 2);
             services.AddControllers().AddValidators();
             services.AddExtendedAttributesValidators();
@@ -98,8 +102,8 @@ namespace Repres.Server
             app.ConfigureSwagger();
             app.Initialize(_configuration);
 
-            RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Execution", x => x.Execute(CancellationToken.None), "0 0 * * *");
-            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(CancellationToken.None), "0 3 * * *");
+            RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Execution", x => x.Execute(null, CancellationToken.None), "0 0 * * *");
+            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(null, CancellationToken.None), "0 3 * * *");
         }
     }
 }
