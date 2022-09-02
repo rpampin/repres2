@@ -31,11 +31,11 @@ namespace Repres.Domain.Entities.ThirdParty.Oura
         public float? restless { get; set; }
         public float? efficiency { get; set; }
         public float? midpoint_time { get; set; }
-        public float hr_lowest { get; set; }
-        public float hr_average { get; set; }
+        public float? hr_lowest { get; set; }
+        public float? hr_average { get; set; }
         public float? rmssd { get; set; }
-        public float breath_average { get; set; }
-        public float temperature_delta { get; set; }
+        public float? breath_average { get; set; }
+        public float? temperature_delta { get; set; }
         public string hypnogram_5min { get; set; }
         //public int[] hr_5min { get; set; }
         //public int[] rmssd_5min { get; set; }
