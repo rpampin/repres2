@@ -63,6 +63,12 @@ namespace Repres.Infrastructure.Jobs
                 context.ResetTextColor();
                 throw new InvalidOperationException();
             }
+            else
+            {
+                context.SetTextColor(ConsoleTextColor.Green);
+                context.WriteLine("ApiProccessExecution finished successfully");
+                context.ResetTextColor();
+            }
         }
     }
 }

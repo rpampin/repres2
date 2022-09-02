@@ -28,7 +28,6 @@ namespace Repres.Infrastructure.Jobs
 
         public async Task Execute(PerformContext context, CancellationToken cancellationToken)
         {
-            return;
             context.WriteLine("Commencing GoogleCalcExportExecution Task");
 
             bool hadErrors = false;
@@ -63,6 +62,12 @@ namespace Repres.Infrastructure.Jobs
                 context.WriteLine("GoogleCalcExportExecution finished with errors");
                 context.ResetTextColor();
                 throw new InvalidOperationException();
+            }
+            else
+            {
+                context.SetTextColor(ConsoleTextColor.Green);
+                context.WriteLine("GoogleCalcExportExecution finished successfully");
+                context.ResetTextColor();
             }
         }
     }

@@ -208,12 +208,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     try
                     {
-                        Log(context, await response.Content.ReadAsStringAsync());
                         var sleepData = await response.ToResult<OuraSummaryResponse>();
                         sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
                     }
                     catch (Exception ex)
                     {
+                        Log(context, await response.Content.ReadAsStringAsync());
                         Log(context, ex.Message, ConsoleTextColor.Red);
                         throw;
                     }
@@ -233,12 +233,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     try
                     {
-                        Log(context, await response.Content.ReadAsStringAsync());
                         var readinessData = await response.ToResult<OuraSummaryResponse>();
                         readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
                     }
                     catch (Exception ex)
                     {
+                        Log(context, await response.Content.ReadAsStringAsync());
                         Log(context, ex.Message, ConsoleTextColor.Red);
                         throw;
                     }
@@ -258,12 +258,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
 
                     try
                     {
-                        Log(context, await response.Content.ReadAsStringAsync());
                         var activityData = await response.ToResult<OuraSummaryResponse>();
                         activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
                     }
                     catch (Exception ex)
                     {
+                        Log(context, await response.Content.ReadAsStringAsync());
                         Log(context, ex.Message, ConsoleTextColor.Red);
                         throw;
                     }
