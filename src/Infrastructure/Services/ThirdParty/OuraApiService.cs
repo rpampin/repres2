@@ -138,7 +138,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
             await _mailService.SendAsync(mailRequest);
         }
 
-        void Log(PerformContext context, string message, ConsoleTextColor? consoleTextColor = null)
+        void Log(PerformContext context, string message, ConsoleTextColor consoleTextColor = null)
         {
             if (context != null)
             {
@@ -193,10 +193,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
                 using (var client = new HttpClient())
                 {
                     // SLEEP
+                    var sleepFrom = start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastSleepSummaryDate.HasValue ? lastSleepSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd");
                     var uri = _options.ApiBaseAddress + _options.SleepSummaries;
-                    uri = uri.Replace(":start", start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastSleepSummaryDate.HasValue ? lastSleepSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd"));
+                    uri = uri.Replace(":start", sleepFrom);
                     uri = uri.Replace(":end", endPrm);
 
+                    Log(context, $"Querying Sleep data from {sleepFrom} to {endPrm}");
                     client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                     var response = await client.GetAsync(uri);
 
@@ -210,6 +212,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     {
                         var sleepData = await response.ToResult<OuraSummaryResponse>();
                         sleepSummary = _mapper.Map<List<Sleep>>(sleepData.Sleep);
+                        Log(context, $"Got {sleepSummary.Count} Sleep registries");
                     }
                     catch (Exception ex)
                     {
@@ -219,10 +222,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     }
 
                     // READINESS
+                    var readinessFrom = start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastReadinessSummaryDate.HasValue ? lastReadinessSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd");
                     uri = _options.ApiBaseAddress + _options.ReadinessSummaries;
-                    uri = uri.Replace(":start", start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastReadinessSummaryDate.HasValue ? lastReadinessSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd"));
+                    uri = uri.Replace(":start", readinessFrom);
                     uri = uri.Replace(":end", endPrm);
 
+                    Log(context, $"Querying Readiness data from {readinessFrom} to {endPrm}");
                     response = await client.GetAsync(uri);
 
                     if (!response.IsSuccessStatusCode)
@@ -235,6 +240,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     {
                         var readinessData = await response.ToResult<OuraSummaryResponse>();
                         readinessSummary = _mapper.Map<List<Readiness>>(readinessData.Readiness);
+                        Log(context, $"Got {readinessSummary.Count} Readiness registries");
                     }
                     catch (Exception ex)
                     {
@@ -244,10 +250,12 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     }
 
                     // ACTIVITY
+                    var activityFrom = start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastActivitypSummaryDate.HasValue ? lastActivitypSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd");
                     uri = _options.ApiBaseAddress + _options.ActivitySummaries;
-                    uri = uri.Replace(":start", start.HasValue ? start.Value.ToString("yyyy-MM-dd") : lastActivitypSummaryDate.HasValue ? lastActivitypSummaryDate.Value.ToString("yyyy-MM-dd") : initialDate.ToString("yyyy-MM-dd"));
+                    uri = uri.Replace(":start", activityFrom);
                     uri = uri.Replace(":end", endPrm);
 
+                    Log(context, $"Querying Activity data from {activityFrom} to {endPrm}");
                     response = await client.GetAsync(uri);
 
                     if (!response.IsSuccessStatusCode)
@@ -260,6 +268,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     {
                         var activityData = await response.ToResult<OuraSummaryResponse>();
                         activitySummary = _mapper.Map<List<Activity>>(activityData.Activity);
+                        Log(context, $"Got {activitySummary.Count} Activity registries");
                     }
                     catch (Exception ex)
                     {
@@ -297,6 +306,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
                     }
                 }
 
+                Log(context, $"Commiting data from user {userId}", ConsoleTextColor.DarkYellow);
                 await _unitOfWork.Commit(cancellationToken);
             }
         }

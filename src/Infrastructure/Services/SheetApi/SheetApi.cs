@@ -2,13 +2,14 @@
 using Google.Apis.Drive.v3.Data;
 using Google.Apis.Sheets.v4;
 using Google.Apis.Sheets.v4.Data;
+using Hangfire.Console;
+using Hangfire.Server;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Repres.Application.Interfaces.Repositories;
 using Repres.Application.Interfaces.Services;
 using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Domain.Entities.ThirdParty.Oura;
-using Repres.Infrastructure.Contexts;
 using Repres.Infrastructure.Helper;
 using Repres.Infrastructure.Models.Identity;
 using Repres.Infrastructure.Services.SheetApi.Options;
@@ -31,7 +32,6 @@ namespace Repres.Infrastructure.Services.SheetApi
         private readonly SpreadsheetsResource.ValuesResource _googleSheetValues;
         private readonly SpreadsheetsResource _googleSpreadSheet;
         private readonly UserManager<BlazorHeroUser> _userManager;
-        private readonly BlazorHeroContext _blazorHeroContext;
         private readonly SheetOptions _options;
 
         public SheetApi(IOuraRepository ouraRepository,
@@ -39,8 +39,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                         IOptionsSnapshot<SheetOptions> options,
                         UserManager<BlazorHeroUser> userManager,
                         IUnitOfWork<int> unitOfWork,
-                        IDateTimeService dateTimeService,
-                        BlazorHeroContext blazorHeroContext)
+                        IDateTimeService dateTimeService)
         {
             _ouraRepository = ouraRepository;
             _googleDrive = googleSheetsHelper.DriveService;
@@ -50,13 +49,12 @@ namespace Repres.Infrastructure.Services.SheetApi
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _unitOfWork = unitOfWork;
             _dateTimeService = dateTimeService;
-            _blazorHeroContext = blazorHeroContext;
         }
 
         string GetDateNameString(DateTime date, string userLanguage)
             => date.ToString(_options.DateFormat, new CultureInfo(userLanguage)).ToUpper();
 
-        public async Task ExportData(string userId)
+        public async Task ExportData(string userId, PerformContext context)
         {
             // CHECK IF THERE'S DATA TO BE EXPORTED
             var date = _dateTimeService.NowUtc;
@@ -224,6 +222,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                 if (newMonthsToExport.Count > 0)
                 {
+                    Log(context, $"Adding new month to user's sheet");
+
                     // GET TEMPLATE SPREADSHEET
                     var templateSpreadSheet = _googleSpreadSheet.Get(_options.TemplateSpreadsheetId).Execute();
 
@@ -363,21 +363,17 @@ namespace Repres.Infrastructure.Services.SheetApi
                         });
 
                         await _googleSpreadSheet.BatchUpdate(batchUpdateTemplateSheetName, spreadSheet.SpreadsheetId).ExecuteAsync();
+                        Log(context, "User's spreadsheet was updated with the new month tabs");
 
                         spreadSheet = _googleSpreadSheet.Get(spreadSheet.SpreadsheetId).Execute();
                     }
                 }
 
-                // DELETE PREVIOUS EXPORTED DATA
-                var (removeSleep, removeREadiness, removeActivity) = await _ouraRepository.GetDataToRemove(userId);
-                _blazorHeroContext.SleepSummary.RemoveRange(removeSleep);
-                _blazorHeroContext.ReadinessSummary.RemoveRange(removeREadiness);
-                _blazorHeroContext.ActivitySummary.RemoveRange(removeActivity);
-
                 // DATA EXPORT
                 BatchUpdateValuesRequest batchUpdateValuesRequest = new BatchUpdateValuesRequest();
                 batchUpdateValuesRequest.Data = new List<ValueRange>();
 
+                Log($"Found {exportData.sleepSummary} Sleep registries to export.");
                 ISet<string> updatedSheet = new HashSet<string>();
                 var sleepRangeSplit = _options.SleepRange.Split(':');
                 var sleepRange = (sleepRangeSplit[0], sleepRangeSplit[1]);
@@ -430,6 +426,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     updatedSheet.Add(sheetName);
                 }
 
+                Log($"Found {exportData.activitySummary} Activity registries to export.");
                 var activityRangeSplit = _options.ActivityRange.Split(':');
                 var activityRange = (activityRangeSplit[0], activityRangeSplit[1]);
                 foreach (var activity in exportData.activitySummary)
@@ -468,7 +465,8 @@ namespace Repres.Infrastructure.Services.SheetApi
 
                     updatedSheet.Add(sheetName);
                 }
-
+                
+                Log($"Found {exportData.readinessSummary} Readiness registries to export.");
                 var readinessRangeSplit = _options.ReadinessRange.Split(':');
                 var readinessRange = (readinessRangeSplit[0], readinessRangeSplit[1]);
                 foreach (var readiness in exportData.readinessSummary)
@@ -502,6 +500,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 batchUpdateValuesRequest.ValueInputOption = "USER_ENTERED";
                 if (batchUpdateValuesRequest.Data.Count > 0)
                 {
+                    Log(context, $"User's sheet will be updated with {batchUpdateValuesRequest.Data.Count} registries");
                     await _googleSheetValues.BatchUpdate(batchUpdateValuesRequest, spreadSheet.SpreadsheetId).ExecuteAsync();
                     await _unitOfWork.Commit(CancellationToken.None);
 
@@ -550,9 +549,26 @@ namespace Repres.Infrastructure.Services.SheetApi
                         }
 
                         if (batchUpdateTemplateSheetName.Requests.Count > 0 && updateCharts)
+                        {
                             await _googleSpreadSheet.BatchUpdate(batchUpdateTemplateSheetName, spreadSheet.SpreadsheetId).ExecuteAsync();
+                            Log(context, $"User's {userId} spreadsheet was updated", ConsoleTextColor.DarkYellow);
+                        }
                     }
                 }
+            }
+            else
+            {
+                Log(context, "No available data to export", ConsoleTextColor.DarkYellow);
+            }
+        }
+
+        void Log(PerformContext context, string message, ConsoleTextColor consoleTextColor = null)
+        {
+            if (context != null)
+            {
+                context.SetTextColor(consoleTextColor ?? ConsoleTextColor.White);
+                context.WriteLine(message);
+                context.ResetTextColor();
             }
         }
 

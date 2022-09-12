@@ -44,7 +44,7 @@ namespace Repres.Infrastructure.Jobs
                     try
                     {
                         context.WriteLine($"Exporting data to google for USERID: {apiUser.UserId}");
-                        await _sheetApi.ExportData(apiUser.UserId);
+                        await _sheetApi.ExportData(apiUser.UserId, context);
                     }
                     catch (Exception ex)
                     {

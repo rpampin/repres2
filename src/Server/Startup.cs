@@ -16,6 +16,7 @@ using Repres.Server.Extensions;
 using Repres.Server.Filters;
 using Repres.Server.Managers.Preferences;
 using Repres.Server.Middlewares;
+using System;
 using System.IO;
 using System.Threading;
 
@@ -58,8 +59,13 @@ namespace Repres.Server
             services.RegisterSwagger();
             services.AddInfrastructureMappings();
             //services.AddHangfire(x => x.UseSqlServerStorage(_configuration.GetConnectionString("DefaultConnection")));
-            services.AddHangfire(x => {
+            services.AddHangfire(x =>
+            {
+#if DEBUG
                 x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection"));
+#else
+                x.UsePostgreSqlStorage(DatabaseUrlParser.Parse(Environment.GetEnvironmentVariable("DATABASE_URL")));
+#endif
                 x.UseConsole();
             });
             services.AddHangfireServer(opt => opt.WorkerCount = 2);
@@ -103,7 +109,8 @@ namespace Repres.Server
             app.Initialize(_configuration);
 
             RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Execution", x => x.Execute(null, CancellationToken.None), "0 0 * * *");
-            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(null, CancellationToken.None), "0 3 * * *");
+            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(null, CancellationToken.None), "0 2 * * *");
+            RecurringJob.AddOrUpdate<DatabasePurgeExecution>("Database Data Purge Execution", x => x.Execute(null, CancellationToken.None), "0 4 * * *");
         }
     }
 }
