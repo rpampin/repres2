@@ -46,10 +46,9 @@ namespace Repres.Infrastructure.Jobs
                 .Include(x => x.Api)
                 .ToListAsync();
 
-            var auditTrails = _blazorHeroContext.AuditTrails.Where(a => a.DateTime < _dateTimeService.NowUtc.AddDays(-2)).ToList();
-            if (auditTrails.Any())
+            if (_blazorHeroContext.AuditTrails.Any())
             {
-                _blazorHeroContext.AuditTrails.RemoveRange(auditTrails);
+                _blazorHeroContext.AuditTrails.RemoveRange(_blazorHeroContext.AuditTrails);
                 await _blazorHeroContext.SaveChangesAsync();
             }
 
