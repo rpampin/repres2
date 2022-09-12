@@ -2,6 +2,7 @@
 using Hangfire.Server;
 using Microsoft.EntityFrameworkCore;
 using Repres.Application.Interfaces.Repositories;
+using Repres.Application.Interfaces.Services;
 using Repres.Application.Interfaces.Services.ThirdParty;
 using Repres.Domain.Entities.ThirdParty;
 using Repres.Infrastructure.Contexts;
@@ -18,11 +19,13 @@ namespace Repres.Infrastructure.Jobs
     {
         private readonly IUnitOfWork<int> _unitOfWork;
         private readonly IOuraRepository _ouraRepository;
+        private readonly IDateTimeService _dateTimeService;
         private readonly BlazorHeroContext _blazorHeroContext;
         private readonly IEnumerable<IApiService> _apiServices;
 
         public DatabasePurgeExecution(IUnitOfWork<int> unitOfWork,
                                       IOuraRepository ouraRepository,
+                                      IDateTimeService dateTimeService,
                                       BlazorHeroContext blazorHeroContext,
                                       IEnumerable<IApiService> apiServices)
         {
@@ -30,6 +33,7 @@ namespace Repres.Infrastructure.Jobs
             _unitOfWork = unitOfWork;
             _apiServices = apiServices;
             _blazorHeroContext = blazorHeroContext;
+            _dateTimeService = dateTimeService;
         }
 
         public async Task Execute(PerformContext context, CancellationToken cancellationToken)
@@ -41,6 +45,13 @@ namespace Repres.Infrastructure.Jobs
                 .Entities
                 .Include(x => x.Api)
                 .ToListAsync();
+
+            var auditTrails = _blazorHeroContext.AuditTrails.Where(a => a.DateTime < _dateTimeService.NowUtc.AddDays(-2)).ToList();
+            if (auditTrails.Any())
+            {
+                _blazorHeroContext.AuditTrails.RemoveRange(auditTrails);
+                await _blazorHeroContext.SaveChangesAsync();
+            }
 
             bool hadErrors = false;
             foreach (var apiUser in apiByUsers)
