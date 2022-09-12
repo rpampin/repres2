@@ -373,7 +373,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 BatchUpdateValuesRequest batchUpdateValuesRequest = new BatchUpdateValuesRequest();
                 batchUpdateValuesRequest.Data = new List<ValueRange>();
 
-                Log(context, $"Found {exportData.sleepSummary} Sleep registries to export.");
+                Log(context, $"Found {exportData.sleepSummary.Count} Sleep registries to export.");
                 ISet<string> updatedSheet = new HashSet<string>();
                 var sleepRangeSplit = _options.SleepRange.Split(':');
                 var sleepRange = (sleepRangeSplit[0], sleepRangeSplit[1]);
@@ -426,7 +426,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     updatedSheet.Add(sheetName);
                 }
 
-                Log(context, $"Found {exportData.activitySummary} Activity registries to export.");
+                Log(context, $"Found {exportData.activitySummary.Count} Activity registries to export.");
                 var activityRangeSplit = _options.ActivityRange.Split(':');
                 var activityRange = (activityRangeSplit[0], activityRangeSplit[1]);
                 foreach (var activity in exportData.activitySummary)
@@ -466,7 +466,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                     updatedSheet.Add(sheetName);
                 }
                 
-                Log(context, $"Found {exportData.readinessSummary} Readiness registries to export.");
+                Log(context, $"Found {exportData.readinessSummary.Count} Readiness registries to export.");
                 var readinessRangeSplit = _options.ReadinessRange.Split(':');
                 var readinessRange = (readinessRangeSplit[0], readinessRangeSplit[1]);
                 foreach (var readiness in exportData.readinessSummary)
