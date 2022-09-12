@@ -46,9 +46,9 @@ namespace Repres.Infrastructure.Repositories
         {
             var rv = (new List<Sleep>(), new List<Readiness>(), new List<Activity>());
 
-            rv.Item1 = await _sleepRepository.Entities.Where(e => e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
-            rv.Item2 = await _readinessRepository.Entities.Where(e => e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
-            rv.Item3 = await _activityRepository.Entities.Where(e => e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
+            rv.Item1 = await _sleepRepository.Entities.Where(e => e.user_id == userId && e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
+            rv.Item2 = await _readinessRepository.Entities.Where(e => e.user_id == userId && e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
+            rv.Item3 = await _activityRepository.Entities.Where(e => e.user_id == userId && e.exported_date == null).OrderBy(e => e.summary_date).ToListAsync();
 
             return rv;
         }
@@ -57,9 +57,9 @@ namespace Repres.Infrastructure.Repositories
         {
             var rv = (new List<Sleep>(), new List<Readiness>(), new List<Activity>());
 
-            rv.Item1 = await _sleepRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Sleep>();
-            rv.Item2 = await _readinessRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Readiness>();
-            rv.Item3 = await _activityRepository.Entities.Where(e => e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Activity>();
+            rv.Item1 = await _sleepRepository.Entities.Where(e => e.user_id == userId && e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Sleep>();
+            rv.Item2 = await _readinessRepository.Entities.Where(e => e.user_id == userId && e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Readiness>();
+            rv.Item3 = await _activityRepository.Entities.Where(e => e.user_id == userId && e.exported_date != null).OrderBy(e => e.summary_date).ToListAsync() ?? new List<Activity>();
 
             return rv;
         }
