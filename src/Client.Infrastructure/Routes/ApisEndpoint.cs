@@ -10,4 +10,12 @@
         public static string Save = "api/v1/apis";
         public static string PersistApiToken = "api/v1/apis/token/persist";
     }
+
+    public static class OuraEndpoint
+    {
+        public static string ResetUserData(string userId)
+        {
+            return $"api/v1/Oura/reset/{userId}";
+        }
+    }
 }

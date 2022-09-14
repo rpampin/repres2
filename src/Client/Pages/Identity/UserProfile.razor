@@ -22,6 +22,10 @@ else
                     <MudCardContent Class="pa-46" Style="padding:26px!important">
                         <MudGrid>
                             <MudCheckBox @bind-Checked="@_active" Label="@_localizer["Active?"]" Color="Color.Primary"></MudCheckBox>
+                            @if (_hasSheet)
+                            {
+                                <MudButton Variant="Variant.Filled" Color="Color.Secondary" Class="ml-auto" OnClick="ResetSheet" ButtonType="ButtonType.Button">@_localizer["Reset Oura Sheet"]</MudButton>
+                            }
                             <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto" OnClick="ToggleUserStatus" ButtonType="ButtonType.Submit">@_localizer["Save Changes"]</MudButton>
                         </MudGrid>
                     </MudCardContent>

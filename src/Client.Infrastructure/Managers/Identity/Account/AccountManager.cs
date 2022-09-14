@@ -51,5 +51,11 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Account
             var response = await _httpClient.PostAsJsonAsync(Routes.AccountEndpoints.UpdateProfilePicture(userId), request);
             return await response.ToResult<string>();
         }
+
+        public async Task<IResult<bool>> GetProfileHasSheet(string userId)
+        {
+            var response = await _httpClient.GetAsync(Routes.AccountEndpoints.GetProfileHasSheet(userId));
+            return await response.ToResult<bool>();
+        }
     }
 }

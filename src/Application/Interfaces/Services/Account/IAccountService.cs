@@ -18,5 +18,7 @@ namespace Repres.Application.Interfaces.Services.Account
         Task<IResult<string>> GetProfileLanguageAsync(string userId);
 
         Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId);
+        
+        Task<IResult<bool>> GetProfileHasSheetAsync(string userId);
     }
 }

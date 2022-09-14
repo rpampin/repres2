@@ -7,11 +7,15 @@ using Repres.Client.Infrastructure.Managers.TimeZone;
 using Repres.Application.Features.Languages.Queries.GetAll;
 using Repres.Shared.Constants.Localization;
 using System.Linq;
+using Repres.Client.Infrastructure.Managers.Services.ThirdParty.Oura;
+using Repres.Shared.Wrapper;
 
 namespace Repres.Client.Pages.Identity
 {
     public partial class UserProfile
     {
+        [Inject] private IOuraManager _ouraManager { get; set; }
+
         [Parameter] public string Id { get; set; }
         [Parameter] public string Title { get; set; }
         [Parameter] public string Description { get; set; }
@@ -24,6 +28,7 @@ namespace Repres.Client.Pages.Identity
         private string _email;
         private int _utcMinutes;
         private string _language;
+        private bool _hasSheet;
 
         private bool _loaded;
 
@@ -34,6 +39,23 @@ namespace Repres.Client.Pages.Identity
             if (result.Succeeded)
             {
                 _snackBar.Add(_localizer["Updated User Status."], Severity.Success);
+                _navigationManager.NavigateTo("/identity/users");
+            }
+            else
+            {
+                foreach (var error in result.Messages)
+                {
+                    _snackBar.Add(error, Severity.Error);
+                }
+            }
+        }
+
+        private async Task ResetSheet()
+        {
+            var result = await _ouraManager.ResetUserData(Id);
+            if (result.Succeeded)
+            {
+                _snackBar.Add(_localizer["User's OURA data has been purged."], Severity.Success);
                 _navigationManager.NavigateTo("/identity/users");
             }
             else
@@ -78,6 +100,12 @@ namespace Repres.Client.Pages.Identity
                     if (language.Succeeded)
                     {
                         _language = language.Data;
+                    }
+
+                    var hasSheet = await _accountManager.GetProfileHasSheet(userId);
+                    if (hasSheet.Succeeded)
+                    {
+                        _hasSheet = hasSheet.Data;
                     }
                 }
                 Title = $"{_firstName} {_lastName}'s {_localizer["Profile"]}";

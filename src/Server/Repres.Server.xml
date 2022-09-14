@@ -71,6 +71,13 @@
             <param name="request"></param>
             <returns>Status 200 OK</returns>
         </member>
+        <member name="M:Repres.Server.Controllers.Identity.AccountController.GetProfileHasSheetAsync(System.String)">
+            <summary>
+            Profile has Sheet
+            </summary>
+            <param name="userId"></param>
+            <returns>Status 200 OK </returns>
+        </member>
         <member name="M:Repres.Server.Controllers.Identity.TokenController.Get(Repres.Application.Requests.Identity.TokenRequest)">
             <summary>
             Get Token (Email, Password)
@@ -413,6 +420,13 @@
             Execute APIs Processes by UserId
             </summary>
             <returns>Status 200 Ok</returns>
+        </member>
+        <member name="M:Repres.Server.Controllers.v1.ThidParty.Oura.OuraController.Post(System.String)">
+            <summary>
+            Remove Oura user's data and google sheet
+            </summary>
+            <param name="userId"></param>
+            <returns>Status 200 OK</returns>
         </member>
     </members>
 </doc>

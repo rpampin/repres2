@@ -126,5 +126,15 @@ namespace Repres.Infrastructure.Services.Identity
             var errors = identityResult.Errors.Select(e => _localizer[e.Description].ToString()).ToList();
             return identityResult.Succeeded ? await Result<string>.SuccessAsync(data: filePath) : await Result<string>.FailAsync(errors);
         }
+
+        public async Task<IResult<bool>> GetProfileHasSheetAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return await Result<bool>.FailAsync(_localizer["User Not Found"]);
+            }
+            return await Result<bool>.SuccessAsync(data: !string.IsNullOrWhiteSpace(user.OuraSheetId));
+        }
     }
 }

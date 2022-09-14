@@ -17,5 +17,7 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Account
         Task<IResult<string>> GetProfileLanguageAsync(string userId);
 
         Task<IResult<string>> UpdateProfilePictureAsync(UpdateProfilePictureRequest request, string userId);
+
+        Task<IResult<bool>> GetProfileHasSheet(string userId);
     }
 }

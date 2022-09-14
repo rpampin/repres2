@@ -21,10 +21,14 @@
             return $"api/identity/account/language/{userId}";
         }
 
-
         public static string UpdateProfilePicture(string userId)
         {
             return $"api/identity/account/profile-picture/{userId}";
+        }
+
+        public static string GetProfileHasSheet(string userId)
+        {
+            return $"api/identity/account/has-sheet/{userId}";
         }
     }
 }

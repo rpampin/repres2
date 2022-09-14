@@ -1,12 +1,14 @@
 ﻿using AutoMapper;
+using Google.Apis.Drive.v3;
+using Google.Apis.Sheets.v4;
 using Hangfire.Console;
 using Hangfire.Server;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Repres.Application.Features.Apis.Commands.RefreshTokenPersist;
 using Repres.Application.Interfaces.Repositories;
 using Repres.Application.Interfaces.Services;
-using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Application.Interfaces.Services.ThirdParty;
 using Repres.Application.Requests.Mail;
 using Repres.Application.Responses.ThirdParty;
@@ -15,7 +17,10 @@ using Repres.Domain.Entities.ThirdParty;
 using Repres.Domain.Entities.ThirdParty.Oura;
 using Repres.Infrastructure.Contexts;
 using Repres.Infrastructure.Extensions;
+using Repres.Infrastructure.Helper;
+using Repres.Infrastructure.Models.Identity;
 using Repres.Infrastructure.Services.ThirdParty.Options;
+using Repres.Shared.Wrapper;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -25,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Repres.Infrastructure.Services.ThirdParty
 {
-    public class OuraApiService : IApiService
+    public class OuraApiService : IOuraApiService
     {
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
@@ -37,6 +42,10 @@ namespace Repres.Infrastructure.Services.ThirdParty
         private readonly IApiByUserRepository _apiByUserRepository;
         private readonly IMailService _mailService;
         private readonly BlazorHeroContext _blazorHeroContext;
+        private readonly DriveService _googleDrive;
+        private readonly SpreadsheetsResource.ValuesResource _googleSheetValues;
+        private readonly SpreadsheetsResource _googleSpreadSheet;
+        private readonly UserManager<BlazorHeroUser> _userManager;
 
         public OuraApiService(IMapper mapper,
                               IMediator mediator,
@@ -47,7 +56,9 @@ namespace Repres.Infrastructure.Services.ThirdParty
                               IDateTimeService dateTimeService,
                               IOptionsSnapshot<OuraAuthOptions> options,
                               IMailService mailService,
-                              BlazorHeroContext blazorHeroContext)
+                              BlazorHeroContext blazorHeroContext,
+                              GoogleSheetsHelper googleSheetsHelper,
+                              UserManager<BlazorHeroUser> userManager)
         {
             _mapper = mapper;
             _mediator = mediator;
@@ -59,6 +70,10 @@ namespace Repres.Infrastructure.Services.ThirdParty
             _options = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _mailService = mailService;
             _blazorHeroContext = blazorHeroContext;
+            _googleDrive = googleSheetsHelper.DriveService;
+            _googleSheetValues = googleSheetsHelper.SheetService.Spreadsheets.Values;
+            _googleSpreadSheet = googleSheetsHelper.SheetService.Spreadsheets;
+            _userManager = userManager;
         }
 
         public string Name => "Oura";
@@ -309,6 +324,27 @@ namespace Repres.Infrastructure.Services.ThirdParty
                 Log(context, $"Commiting data from user {userId}", ConsoleTextColor.DarkYellow);
                 await _unitOfWork.Commit(cancellationToken);
             }
+        }
+
+        public async Task<IResult> ResetUserData(string userId)
+        {
+            var user = await _blazorHeroContext.Users.FindAsync(userId);
+
+            // REMOVE USER DATA
+            var (sleepPurge, readinessPurge, activityPurge) = await _ouraRepository.GetDataToRemove(userId);
+            _blazorHeroContext.SleepSummary.RemoveRange(sleepPurge);
+            _blazorHeroContext.ReadinessSummary.RemoveRange(readinessPurge);
+            _blazorHeroContext.ActivitySummary.RemoveRange(activityPurge);
+            await _blazorHeroContext.SaveChangesAsync();
+
+            // REMOVE USER SHEET
+            _googleDrive.Files.Delete(user.OuraSheetId).Execute();
+            user.OuraSheetId = null;
+            user.OuraSheetUrl = null;
+            await _userManager.UpdateAsync(user);
+            await _userManager.FindByIdAsync(userId);
+
+            return Result.Success();
         }
     }
 }

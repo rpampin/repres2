@@ -91,5 +91,16 @@ namespace Repres.Server.Controllers.Identity
         {
             return Ok(await _accountService.UpdateProfilePictureAsync(request, _currentUser.UserId));
         }
+
+        /// <summary>
+        /// Profile has Sheet
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns>Status 200 OK </returns>
+        [HttpGet("has-sheet/{userId}")]
+        public async Task<IActionResult> GetProfileHasSheetAsync(string userId)
+        {
+            return Ok(await _accountService.GetProfileHasSheetAsync(userId));
+        }
     }
 }
