@@ -46,7 +46,7 @@ namespace Repres.Infrastructure.Extensions
         {
             services.AddOptions<OuraAuthOptions>()
                 .Bind(configuration.GetSection(nameof(OuraAuthOptions)));
-            services.AddTransient<IOuraApiService, OuraApiService>();
+            services.AddTransient<IApiService, OuraApiService>();
 
             services.AddOptions<SheetOptions>()
                 .Bind(configuration.GetSection(nameof(SheetOptions)));

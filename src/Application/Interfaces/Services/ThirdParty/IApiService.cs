@@ -14,5 +14,6 @@ namespace Repres.Application.Interfaces.Services.ThirdParty
         Task<TokenResponse> GetAuthorizationToken(string code, string state);
         Task<TokenResponse> GetAuthorizationRefreshToken(string refreshToken);
         Task ExecuteScheduledJob(string userId, PerformContext context, DateTime? start, DateTime? end, CancellationToken cancellationToken);
+        Task ResetUserData(string userId);
     }
 }

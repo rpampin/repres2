@@ -62,9 +62,9 @@ namespace Repres.Server
             services.AddHangfire(x =>
             {
 #if DEBUG
-                x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection"));
+                x.UsePostgreSqlStorage(_configuration.GetConnectionString("DefaultConnection")).WithJobExpirationTimeout(TimeSpan.FromDays(7));
 #else
-                x.UsePostgreSqlStorage(DatabaseUrlParser.Parse(Environment.GetEnvironmentVariable("DATABASE_URL")));
+                x.UsePostgreSqlStorage(DatabaseUrlParser.Parse(Environment.GetEnvironmentVariable("DATABASE_URL"))).WithJobExpirationTimeout(TimeSpan.FromDays(7));
 #endif
                 x.UseConsole();
             });
@@ -108,10 +108,12 @@ namespace Repres.Server
             app.ConfigureSwagger();
             app.Initialize(_configuration);
 
-            RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Execution", x => x.Execute(null, CancellationToken.None), "0 0 * * *");
-            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Execution", x => x.Execute(null, CancellationToken.None), "0 2 * * *");
-            RecurringJob.AddOrUpdate<DatabasePurgeExecution>("Database Data Purge Execution", x => x.Execute(null, CancellationToken.None), "0 4 * * *");
-            RecurringJob.AddOrUpdate<PruneSummariesExecution>("Database Prune", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
+            RecurringJob.AddOrUpdate<ApiProccessExecution>("API Process Job", x => x.Execute(null, CancellationToken.None), "0 0 * * *");
+            RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Job", x => x.Execute(null, CancellationToken.None), "0 2 * * *");
+            RecurringJob.AddOrUpdate<DatabasePurgeExecution>("Database Data Purge Job", x => x.Execute(null, CancellationToken.None), "0 4 * * *");
+            RecurringJob.AddOrUpdate<PruneSummariesExecution>("Database Prune Job", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
+            RecurringJob.AddOrUpdate<DatabaseStatusExecution>("Database Status Job", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
+            RecurringJob.AddOrUpdate<HangfireResetExecution>("Hangfire Reset Job", x => x.Execute(null, CancellationToken.None), "0 0 1 * *");
         }
     }
 }

@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 
 namespace Repres.Infrastructure.Services.ThirdParty
 {
-    public class OuraApiService : IOuraApiService
+    public class OuraApiService : IApiService
     {
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
@@ -326,7 +326,7 @@ namespace Repres.Infrastructure.Services.ThirdParty
             }
         }
 
-        public async Task<IResult> ResetUserData(string userId)
+        public async Task ResetUserData(string userId)
         {
             var user = await _blazorHeroContext.Users.FindAsync(userId);
 
@@ -343,8 +343,6 @@ namespace Repres.Infrastructure.Services.ThirdParty
             user.OuraSheetUrl = null;
             await _userManager.UpdateAsync(user);
             await _userManager.FindByIdAsync(userId);
-
-            return Result.Success();
         }
     }
 }

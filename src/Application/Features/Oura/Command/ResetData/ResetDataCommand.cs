@@ -13,16 +13,17 @@ namespace Repres.Application.Features.Oura.Command.ResetData
 
     internal class ResetDataHandler : IRequestHandler<ResetDataCommand, IResult>
     {
-        private readonly IOuraApiService _ouraApiService;
+        private readonly IApiService _apiService;
 
-        public ResetDataHandler(IOuraApiService ouraApiService)
+        public ResetDataHandler(IApiService apiService)
         {
-            _ouraApiService = ouraApiService;
+            _apiService = apiService;
         }
 
         public async Task<IResult> Handle(ResetDataCommand request, CancellationToken cancellationToken)
         {
-            return await _ouraApiService.ResetUserData(request.UserId);
+            await _apiService.ResetUserData(request.UserId);
+            return Result.Success();
         }
     }
 }
