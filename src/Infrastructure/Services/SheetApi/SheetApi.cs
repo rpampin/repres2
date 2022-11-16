@@ -581,10 +581,19 @@ namespace Repres.Infrastructure.Services.SheetApi
             int dataRow = 2;
             int dashboardRow = 6;
 
+            IList<IList<object>> data = new List<IList<object>>();
+            IList<object> values = new List<object>();
+
+            // ADD NAME TO B3
+            values.Add($"=INDEX('{dataSheetName}'!A2:A32,MATCH(FALSE,ISBLANK('{dataSheetName}'!A2:A32),0))");
+            data.Add(values);
+            var valueRange = new ValueRange() { Range = $"{monthSheetName}!B3", Values = data };
+            batchUpdateValuesRequest.Data.Add(valueRange);
+
             while (day <= 31)
             {
-                IList<IList<object>> data = new List<IList<object>>();
-                IList<object> values = new List<object>();
+                data = new List<IList<object>>();
+                values = new List<object>();
                 values.Add($"='{dataSheetName}'!A{dataRow}");
                 values.Add($"='{dataSheetName}'!T{dataRow}");
                 values.Add($"='{dataSheetName}'!U{dataRow}");
@@ -616,7 +625,7 @@ namespace Repres.Infrastructure.Services.SheetApi
                 values.Add($"='{dataSheetName}'!AB{dataRow}");
 
                 data.Add(values);
-                var valueRange = new ValueRange() { Range = $"{monthSheetName}!B{dashboardRow}:AE{dashboardRow}", Values = data };
+                valueRange = new ValueRange() { Range = $"{monthSheetName}!B{dashboardRow}:AE{dashboardRow}", Values = data };
                 batchUpdateValuesRequest.Data.Add(valueRange);
 
                 day++;
