@@ -1,10 +1,12 @@
 ﻿using Hangfire.Console;
 using Hangfire.Server;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Repres.Application.Interfaces.Repositories;
 using Repres.Application.Interfaces.Services.SheetApi;
 using Repres.Application.Interfaces.Services.ThirdParty;
 using Repres.Domain.Entities.ThirdParty;
+using Repres.Infrastructure.Models.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,12 +20,14 @@ namespace Repres.Infrastructure.Jobs
         private readonly ISheetApi _sheetApi;
         private readonly IUnitOfWork<int> _unitOfWork;
         private readonly IEnumerable<IApiService> _apiServices;
+        private readonly UserManager<BlazorHeroUser> _userManager;
 
-        public GoogleCalcExportExecution(IUnitOfWork<int> unitOfWork, IEnumerable<IApiService> apiServices, ISheetApi sheetApi)
+        public GoogleCalcExportExecution(IUnitOfWork<int> unitOfWork, IEnumerable<IApiService> apiServices, ISheetApi sheetApi, UserManager<BlazorHeroUser> userManager)
         {
             _unitOfWork = unitOfWork;
             _apiServices = apiServices;
             _sheetApi = sheetApi;
+            _userManager = userManager;
         }
 
         public async Task Execute(PerformContext context, CancellationToken cancellationToken)
@@ -43,7 +47,8 @@ namespace Repres.Infrastructure.Jobs
                 {
                     try
                     {
-                        context.WriteLine($"Exporting data to google for USERID: {apiUser.UserId}");
+                        var user = await _userManager.FindByIdAsync(apiUser.UserId);
+                        context.WriteLine($"Exporting data to google for USERID: {apiUser.UserId} NAME: {user.LastName}, {user.FirstName}");
                         await _sheetApi.ExportData(apiUser.UserId, context);
                     }
                     catch (Exception ex)
