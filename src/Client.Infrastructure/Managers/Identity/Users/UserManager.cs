@@ -80,5 +80,17 @@ namespace Repres.Client.Infrastructure.Managers.Identity.Users
             var data = await response.Content.ReadAsStringAsync();
             return data;
         }
+
+        public async Task DeleteUserAsync(string userId)
+        {
+            try
+            {
+                await _httpClient.DeleteAsync(Routes.UserEndpoints.Delete(userId));
+            }
+            catch
+            {
+                throw;
+            }
+        }
     }
 }

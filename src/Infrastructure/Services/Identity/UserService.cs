@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
 using Hangfire;
+using Repres.Application.Interfaces.Services.ThirdParty;
 
 namespace Repres.Infrastructure.Services.Identity
 {
@@ -29,6 +30,7 @@ namespace Repres.Infrastructure.Services.Identity
     {
         private readonly UserManager<BlazorHeroUser> _userManager;
         private readonly RoleManager<BlazorHeroRole> _roleManager;
+        private readonly IApiService _apiService;
         private readonly IMailService _mailService;
         private readonly IStringLocalizer<UserService> _localizer;
         private readonly IExcelService _excelService;
@@ -42,6 +44,7 @@ namespace Repres.Infrastructure.Services.Identity
             IMailService mailService,
             IStringLocalizer<UserService> localizer,
             IExcelService excelService,
+            IApiService apiService,
             ICurrentUserService currentUserService)
         {
             _userManager = userManager;
@@ -50,6 +53,7 @@ namespace Repres.Infrastructure.Services.Identity
             _mailService = mailService;
             _localizer = localizer;
             _excelService = excelService;
+            _apiService = apiService;
             _currentUserService = currentUserService;
         }
 
@@ -303,6 +307,13 @@ namespace Repres.Infrastructure.Services.Identity
                 });
 
             return result;
+        }
+
+        public async Task DeleteUserAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            await _userManager.DeleteAsync(user);
+            await _apiService.ResetUserData(userId);
         }
     }
 }

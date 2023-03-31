@@ -1,19 +1,25 @@
-﻿using Repres.Application.Responses.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
+using Repres.Application.Models.Chat;
+using Repres.Application.Responses.Identity;
+using Repres.Client.Infrastructure.Managers.Identity.Users;
+using Repres.Client.Infrastructure.Managers.Misc.Document;
+using Repres.Shared.Constants.Application;
+using Repres.Shared.Constants.Permission;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Repres.Shared.Constants.Application;
-using Repres.Shared.Constants.Permission;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.JSInterop;
 
 namespace Repres.Client.Pages.Identity
 {
     public partial class Users
     {
+        [Inject] private IUserManager UserManager { get; set; }
+
         private List<UserResponse> _userList = new();
         private UserResponse _user = new();
         private string _searchString = "";
@@ -25,6 +31,7 @@ namespace Repres.Client.Pages.Identity
         private bool _canCreateUsers;
         private bool _canSearchUsers;
         private bool _canExportUsers;
+        private bool _canDeleteUser;
         private bool _canViewRoles;
         private bool _loaded;
 
@@ -34,6 +41,7 @@ namespace Repres.Client.Pages.Identity
             _canCreateUsers = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Users.Create)).Succeeded;
             _canSearchUsers = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Users.Search)).Succeeded;
             _canExportUsers = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Users.Export)).Succeeded;
+            _canDeleteUser = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Users.Delete)).Succeeded;
             _canViewRoles = (await _authorizationService.AuthorizeAsync(_currentUser, Permissions.Roles.View)).Succeeded;
 
             await GetUsersAsync();
@@ -118,5 +126,31 @@ namespace Repres.Client.Pages.Identity
             if (email == "mukesh@blazorhero.com") _snackBar.Add(_localizer["Not Allowed."], Severity.Error);
             else _navigationManager.NavigateTo($"/identity/user-roles/{userId}");
         }
+
+        private async Task DeleteUser(string userId, string email)
+        {
+            string deleteUser = _localizer["Delete User"];
+            var parameters = new DialogParameters
+            {
+                {nameof(Shared.Dialogs.DeleteConfirmation.ContentText), string.Format(deleteUser, email)}
+            };
+            var options = new DialogOptions { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, DisableBackdropClick = true };
+            var dialog = _dialogService.Show<Shared.Dialogs.DeleteConfirmation>(_localizer["Delete"], parameters, options);
+            var result = await dialog.Result;
+            if (!result.Cancelled)
+            {
+                try
+                {
+                    await UserManager.DeleteUserAsync(userId);
+                    _snackBar.Add("User removed successfuly", Severity.Success);
+                    await GetUsersAsync();
+                }
+                catch (Exception ex)
+                {
+                    _snackBar.Add(ex.Message, Severity.Error);
+                }
+            }
+        }
+
     }
 }

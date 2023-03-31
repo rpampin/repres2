@@ -72,7 +72,7 @@ namespace Repres.Server
             services.AddControllers().AddValidators();
             services.AddExtendedAttributesValidators();
             services.AddExtendedAttributesHandlers();
-            services.AddRazorPages();
+            services.AddRazorPages().AddRazorRuntimeCompilation();
             services.AddApiVersioning(config =>
             {
                 config.DefaultApiVersion = new ApiVersion(1, 0);
@@ -112,8 +112,8 @@ namespace Repres.Server
             RecurringJob.AddOrUpdate<GoogleCalcExportExecution>("Google Cal Export Job", x => x.Execute(null, CancellationToken.None), "0 2 * * *");
             RecurringJob.AddOrUpdate<DatabasePurgeExecution>("Database Data Purge Job", x => x.Execute(null, CancellationToken.None), "0 4 * * *");
             RecurringJob.AddOrUpdate<PruneSummariesExecution>("Database Prune Job", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
-            RecurringJob.AddOrUpdate<DatabaseStatusExecution>("Database Status Job", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
-            RecurringJob.AddOrUpdate<HangfireResetExecution>("Hangfire Reset Job", x => x.Execute(null, CancellationToken.None), "0 0 1 * *");
+            //RecurringJob.AddOrUpdate<DatabaseStatusExecution>("Database Status Job", x => x.Execute(null, CancellationToken.None), "0 0 5 31 2 ?");
+            //RecurringJob.AddOrUpdate<HangfireResetExecution>("Hangfire Reset Job", x => x.Execute(null, CancellationToken.None), "0 0 1 * *");
         }
     }
 }

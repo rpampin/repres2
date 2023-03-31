@@ -1,10 +1,9 @@
-﻿using Repres.Application.Interfaces.Services.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Repres.Application.Interfaces.Services.Identity;
 using Repres.Application.Requests.Identity;
 using Repres.Shared.Constants.Permission;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
-using Repres.Shared.Wrapper;
 
 namespace Repres.Server.Controllers.Identity
 {
@@ -144,5 +143,14 @@ namespace Repres.Server.Controllers.Identity
             var data = await _userService.ExportToExcelAsync(searchString);
             return Ok(data);
         }
+
+        [Authorize(Policy = Permissions.Users.Delete)]
+        [HttpDelete("{userId}")]
+        public async Task<IActionResult> DeleteUserAsync(string userId)
+        {
+            await _userService.DeleteUserAsync(userId);
+            return Ok();
+        }
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿@page "/identity/users"
 @attribute [Authorize(Policy = Permissions.Users.View)]
+@inject IDialogService DialogService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<Users> _localizer
 @using Repres.Application.Responses.Identity
 
@@ -70,14 +71,18 @@ else
                 <MudHighlighter Text="@context.PhoneNumber" HighlightedText="@_searchString" />
             </MudTd>
             <MudTd DataLabel="EmailConfirmed"><MudCheckBox @bind-Checked="@context.EmailConfirmed" ReadOnly Color="Color.Secondary"></MudCheckBox></MudTd>
-            <MudTd DataLabel="Active"><MudCheckBox @bind-Checked="@context.IsActive" ReadOnly Color="Color.Secondary"></MudCheckBox></MudTd>
-            <MudTd DataLabel="Actions" Style="text-align:right">
+                <MudTd DataLabel="Active"><MudCheckBox @bind-Checked="@context.IsActive" ReadOnly Color="Color.Secondary"></MudCheckBox></MudTd>
+                <MudTd DataLabel="Actions" Style="text-align:right">
                 <MudMenu Label="@_localizer["Actions"]" Variant="Variant.Filled" DisableElevation="true" EndIcon="@Icons.Filled.KeyboardArrowDown" IconColor="Color.Secondary" Direction="Direction.Left" OffsetX="true">
-                    <MudMenuItem OnClick="(()=>ViewProfile(context.Id))">@_localizer["View Profile"]</MudMenuItem>
-                    @if (_canViewRoles)
-                        {
+                <MudMenuItem OnClick="(()=>ViewProfile(context.Id))">@_localizer["View Profile"]</MudMenuItem>
+                @if (_canViewRoles)
+                    {
                         <MudMenuItem OnClick="(()=>ManageRoles(context.Id, context.Email))">@_localizer["Manage Roles"]</MudMenuItem>
-                        }
+                    }
+                    @if (_canDeleteUser)
+                    {
+                        <MudMenuItem OnClick="(()=>DeleteUser(context.Id, context.Email))">@_localizer["Delete User"]</MudMenuItem>
+                    }
                 </MudMenu>
             </MudTd>
         </RowTemplate>

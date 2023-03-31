@@ -5,6 +5,7 @@ using Hangfire.Console;
 using Hangfire.Server;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repres.Application.Features.Apis.Commands.RefreshTokenPersist;
 using Repres.Application.Interfaces.Repositories;
@@ -23,8 +24,10 @@ using Repres.Infrastructure.Services.ThirdParty.Options;
 using Repres.Shared.Wrapper;
 using System;
 using System.Collections.Generic;
+using System.Linq.Dynamic.Core;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
